@@ -1,5 +1,5 @@
 .-----------------------------------------------------------------.
-| TibiaMovie 0.1.5 Revision 1 (http://tibiamovie.sourceforge.net) |
+| TibiaMovie 0.1.6 Revision 1 (http://tibiamovie.sourceforge.net) |
 '-----------------------------------------------------------------'
 
 1. Description
