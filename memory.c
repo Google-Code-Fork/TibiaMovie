@@ -288,6 +288,8 @@ void MemoryInjection(int toggle)
 
     cnt = (LPVOID)0;
 
+    TibiaVersionFound = 0;
+    
     if (toggle == 1) {
         char buf[512];
 
@@ -297,9 +299,6 @@ void MemoryInjection(int toggle)
             if (memcmp(buf, memoryVersion[i].buf, memoryVersion[i].buflen) == 0
                 || memcmp(buf, "127.0.0.1", 9) == 0) {
                 TibiaVersionFound = memoryVersion[i].version;
-            }
-            else {
-                TibiaVersionFound = 0;
             }
         }
 
