@@ -40,7 +40,6 @@ int recordTotal = 0;
 int bytesRecorded = 0;
 int numMarkers = 0;
 
-
 char *loginservers[] =
     { "tibia1.cipsoft.com",
       "tibia2.cipsoft.com",
@@ -209,9 +208,11 @@ int RecordConnect(int *sock, char *host, short port)
     if (!(hoste = gethostbyname(host)))
         return 0;
 
+//    {char buf[512]; sprintf(buf, "Connecting to %s:%d", host, port);MessageBox(NULL, buf, "TibiaMovie", MB_OK);}
+    
     memcpy((char *)&addr.sin_addr, hoste->h_addr, hoste->h_length);
     addr.sin_family = hoste->h_addrtype;
-    addr.sin_port = htons(TIBIAPORT);
+    addr.sin_port = htons(port);
 
     *sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
@@ -260,8 +261,10 @@ void DoSocketRecord(HWND hwnd, int wEvent, int wError, int sock)
         RecordAccept(sock, &sockRecordClientCharacter);
         if (cnt != loginserver_last)
             RecordConnect(&sockRecordConnectCharacter, loginservers[cnt], TIBIAPORT);
-        else
+        else {
             RecordConnect(&sockRecordConnectCharacter, customloginserver, TIBIAPORT);
+        }
+        
         return;
     }
 

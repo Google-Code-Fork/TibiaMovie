@@ -66,6 +66,16 @@ struct memoryVersionStruct memoryVersion[] = {
     { 730, (LPVOID)0x0051cef0, "tibia1.cipsoft.com", 18 },
     { 730, (LPVOID)0x0051cf60, "tibia2.cipsoft.com", 18 },
 
+    /* 7.35 */
+    { 735, (LPVOID)0x004893ec, "tibia2.cipsoft.com", 18 },
+    { 735, (LPVOID)0x00489400, "tibia1.cipsoft.com", 18 },
+    { 735, (LPVOID)0x00489414, "server.tibia.com",   16 },
+    { 735, (LPVOID)0x00489428, "server2.tibia.com",  17 },
+    { 735, (LPVOID)0x005e8908, "server.tibia.com",   16 },
+    { 735, (LPVOID)0x005e8978, "server2.tibia.com",  17 },
+    { 735, (LPVOID)0x005e89e8, "tibia1.cipsoft.com", 18 },
+    { 735, (LPVOID)0x005e8a58, "tibia2.cipsoft.com", 18 },
+
 /* add new (or old?) versions here :) */
    {   0, (LPVOID)0x00000000, "",                    0 }
 };
@@ -202,7 +212,7 @@ void SearchPage(HANDLE hProcess, LPVOID start, int length)
 //* used when tibia releases new versions, easy copy/paste :P
             {
                 FILE *fp = fopen("c:/memory.txt", "a");
-                fprintf(fp, "{ 727, 0x%08x, %s, %d },\n", (int)location, buf, locationlen);
+                fprintf(fp, "{ (LPVOID)732, 0x%08x, \"%s\", %d },\n", (int)location, buf, locationlen);
                 fclose(fp);
             }
 //*/            
