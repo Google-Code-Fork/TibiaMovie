@@ -26,3 +26,12 @@ _$*
 *.ln
 core
 # CVS default ignores end
+.cvsignore
+Makefile.win
+TibiaMovie.layout
+TibiaMovie_private.h
+TibiaMovie_private.rc
+TibiaMovie_private.res
+TibiaMovie.exe
+*.tmv
+*.rec
