@@ -47,8 +47,14 @@ char *loginservers[] =
       "server.tibia.com",
       "server2.tibia.com",
       "test.cipsoft.com",
+      "choose custom server ...",
       NULL
     };
+
+/* set this to the last login server index */
+int loginserver_last = 5;
+
+char customloginserver[64] = {0};
 
 void RecordMotdModify(char *buf);
 void RecordData(unsigned char *buf, short len);
@@ -218,7 +224,12 @@ void DoSocketRecord(HWND hwnd, int wEvent, int wError, int sock)
 
     if (sock == sockRecordListenCharacter && wEvent == FD_ACCEPT) {
         cnt = SendMessage(btnServers, LB_GETCURSEL, 0, 0);
-
+        
+        /* if we're using a custom server, but the custom server is bad for some reason
+         * default to the first normal server */
+        if (cnt == loginserver_last && customloginserver[0] == '\0')
+            cnt = 0;
+        
         /* act as a proxy for the "character list" */
         RecordAccept(sock, &sockRecordClientCharacter);
         RecordConnect(&sockRecordConnectCharacter, loginservers[cnt], TIBIAPORT);
@@ -460,3 +471,63 @@ void RecordAddMarker(void)
     return;
 }
 
+void allow_set(char *src, char *list)
+{   
+    char *p_src, *p_dst;
+    char set[256];
+    
+    memset(set, 0, 256);
+    
+    p_dst = list;
+    while (*p_dst)
+        set[(int)*p_dst++] = 1;
+
+    p_src = src;
+    p_dst = src;
+    
+    while (*p_src) {
+        if (set[(int)*p_src] == 1)
+            *p_dst++ = *p_src;
+        
+        p_src++;
+    }
+    
+    *p_dst = '\0';
+    return;             
+}
+
+LRESULT CALLBACK RecordChooseServerProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    switch (message) {
+        case WM_INITDIALOG:
+            SetForegroundWindow(hwnd);
+            SetFocus(GetDlgItem(hwnd, 201));
+            SetDlgItemText(hwnd, 201, customloginserver);
+            SendMessage(GetDlgItem(hwnd, 201), EM_SETSEL, 0, -1);
+            break;
+        case WM_COMMAND:
+            switch (LOWORD(wParam)) {
+                case IDOK:
+                {
+                    GetDlgItemText(hwnd, 201, customloginserver, 63);
+                    allow_set(customloginserver, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.");
+                    EndDialog(hwnd, 0);
+                    
+                    if (customloginserver[0] != '\0') {
+                        SendMessage(btnServers, LB_DELETESTRING, loginserver_last, 0);
+                        SendMessage(btnServers, LB_ADDSTRING, 0, (LPARAM)customloginserver);
+                        SendMessage(btnServers, LB_SETCURSEL, loginserver_last, 0);
+                    }
+                    return TRUE;
+                }
+                case IDCANCEL:
+                {
+                    EndDialog(hwnd, 0);
+                    return TRUE;
+                }
+            }
+            break;
+    }
+    
+    return FALSE;
+}

@@ -40,6 +40,7 @@ char *ofndefext = "tmv";
 
 char saveFile[512];     /* path+filename to save to */
 char saveFileBase[512]; /* filename to save to */
+HINSTANCE hInstance = NULL;
 
 int WINAPI WinMain(HINSTANCE hThisInstance, HINSTANCE hPrevInstance, char *lpszArgument, int show)
 {
@@ -79,7 +80,8 @@ int WINAPI WinMain(HINSTANCE hThisInstance, HINSTANCE hPrevInstance, char *lpszA
            );
 
     wMain = hwnd;
-
+    hInstance = hThisInstance;
+    
     memset(&ofn, 0, sizeof(ofn));
     ofn.lStructSize = sizeof(ofn);
     ofn.hwndOwner = hwnd;
@@ -131,7 +133,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             btnRecordOpen = CreateWindow("button", "...",               WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 224,  25,  20,  25, hwnd, NULL, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
             btnAddMarker  = CreateWindow("button", "Add Marker",        WS_CHILD |              BS_PUSHBUTTON,   0, 240, 244,  25, hwnd, NULL, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
             btnGoToMarker = CreateWindow("button", "Go To Next Marker", WS_CHILD |              BS_PUSHBUTTON,   0, 240, 244,  25, hwnd, NULL, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
-            btnServers    = CreateWindow("listbox", NULL,               WS_CHILD | (LBS_STANDARD & ~LBS_SORT),   0, 153, 144,  90, hwnd, NULL, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+            btnServers    = CreateWindow("listbox", NULL,               WS_CHILD | (LBS_STANDARD & ~LBS_SORT),   0, 135, 244,  110, hwnd, NULL, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
 
             RecordFillServerBox();
 
@@ -250,7 +252,18 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                 fastForwarding = 1;
                 playSpeed = 10;
             }
-
+            else if ((HWND)lParam == btnServers) {
+                int msg = HIWORD(wParam);
+                int index;
+                if (msg == LBN_SELCHANGE) {
+                     index = SendMessage(btnServers, LB_GETCURSEL, 0, 0);
+                     
+                     if (index == loginserver_last)
+                         DialogBox(hInstance, MAKEINTRESOURCE(200), hwnd, (DLGPROC)RecordChooseServerProc);
+                }
+                
+                break;
+            }
             InvalidateRect(hwnd, NULL, TRUE);
             break;
         }

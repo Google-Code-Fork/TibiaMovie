@@ -98,6 +98,8 @@ extern struct serverData servers[1000];
 extern int bytesRecorded;
 extern int numMarkers;
 extern char *loginservers[];
+extern char customloginserver[64];
+extern int loginserver_last;
 
 void RecordFillServerBox(void);
 void RecordData(unsigned char *buf, short len);
@@ -106,4 +108,5 @@ void RecordEnd(void);
 void RecordDisconnect(void);
 void DoSocketRecord(HWND hwnd, int wEvent, int wError, int sock);
 void RecordAddMarker(void);
+LRESULT CALLBACK RecordChooseServerProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 /* end record.c */
