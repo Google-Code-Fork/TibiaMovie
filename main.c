@@ -30,6 +30,8 @@ HWND btnAddMarker  = NULL;
 HWND btnGoToMarker = NULL;
 HWND btnServers    = NULL;
 
+HBRUSH brushBlack, brushBlue, brushLtBlue, brushLtGrey, brushGrey, brushYellow, brushWhite;
+
 int mode = 0;
 
 int debug = 0;
@@ -116,6 +118,14 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
 {
     switch (message) {
         case WM_DESTROY: {
+            DeleteObject(brushBlack);
+            DeleteObject(brushLtGrey);
+            DeleteObject(brushGrey);
+            DeleteObject(brushBlue);
+            DeleteObject(brushLtBlue);
+            DeleteObject(brushYellow);
+            DeleteObject(brushWhite);
+            
             /* we're leaving, so try to put back tibia's memory the way it was */
             if (memoryActivated)
                 MemoryInjection(0);
@@ -126,6 +136,14 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
         case WM_CREATE: {
             WSADATA WSAData;
             int iError;
+
+            brushBlack  = CreateSolidBrush(RGB(0, 0, 0));
+            brushLtGrey = CreateSolidBrush(RGB(192, 192, 192));
+            brushGrey   = CreateSolidBrush(RGB(128, 128, 128));
+            brushBlue   = CreateSolidBrush(RGB(0, 0, 128));
+            brushLtBlue = CreateSolidBrush(RGB(150, 150, 255));
+            brushYellow = CreateSolidBrush(RGB(255, 255, 150));
+            brushWhite = CreateSolidBrush(RGB(255, 255, 255));
 
             /* create our child windows */
             btnActivate   = CreateWindow("button", "Activate",          WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,   0,   0, 244,  25, hwnd, NULL, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
@@ -358,19 +376,14 @@ void OnPaint(HWND hwnd, int message, WPARAM wParam, LPARAM lParam)
     HDC hdc;
     PAINTSTRUCT ps;
     RECT rect;
-    HBRUSH brushBlack, brushBlue, brushLtBlue;
     RECT rectDraw;
     char buf[512];
 
     InvalidateRect(hwnd, &rect, TRUE);
 
     hdc = BeginPaint(hwnd, &ps);
-    SelectObject(hdc, GetStockObject(SYSTEM_FIXED_FONT));
+    SelectObject(hdc, GetStockObject(ANSI_FIXED_FONT));
     SetBkMode(hdc, TRANSPARENT);
-
-    brushBlack  = CreateSolidBrush(RGB(0, 0, 0));
-    brushBlue   = CreateSolidBrush(RGB(0, 0, 128));
-    brushLtBlue = CreateSolidBrush(RGB(150, 150, 255));
 
     y = 60;
     sprintf(buf, "Memory Injection: %s", memoryActivated ? "Enabled" : "Disabled");
@@ -379,15 +392,30 @@ void OnPaint(HWND hwnd, int message, WPARAM wParam, LPARAM lParam)
     TextOut(hdc, 0, y, buf, strlen(buf)); y += 15;
 
     if (mode == MODE_PLAY) {
+        int cnt;
         /* the speed bar */
-        SetRect(&rectDraw, 60, y + 1, 225, 104);
+        SetRect(&rectDraw, 59, y + 1, 226, 104);
         FillRect(hdc, &rectDraw, brushBlack);
-        SetRect(&rectDraw, 61, y + 2, 224, 103);
+        SetRect(&rectDraw, 60, y + 2, 225, 103);
         FillRect(hdc, &rectDraw, brushBlue);
+/*        SetRect(&rectDraw, 60, y + 1, 60 + 15, y + 13);
+        FillRect(hdc, &rectDraw, brushBlack);
+*/        
+        for (cnt = 1; cnt <= 10; cnt++) {
+            SetRect(&rectDraw, 60 + (cnt * 15), y + 2, 61 + (cnt * 15), y + 13);
+            FillRect(hdc, &rectDraw, brushLtBlue);
+        }
+        
         SetRect(&rectDraw, 60 + (playSpeed * 15), y + 1, 60 + ((playSpeed + 1) * 15), 104);
         FillRect(hdc, &rectDraw, brushBlack);
         SetRect(&rectDraw, 60 + (playSpeed * 15), y + 2, 60 + ((playSpeed + 1) * 15), 103);
-        FillRect(hdc, &rectDraw, brushLtBlue);
+        if (playSpeed > 0 && playSpeed < 10)
+            FillRect(hdc, &rectDraw, brushLtBlue);
+        else if (playSpeed == 10)
+            FillRect(hdc, &rectDraw, brushYellow);
+        else
+            FillRect(hdc, &rectDraw, brushGrey);
+            
         TextOut(hdc, 0, y, "Speed: ", 7); y += 15;
     }
 
@@ -416,19 +444,28 @@ void OnPaint(HWND hwnd, int message, WPARAM wParam, LPARAM lParam)
         }
         if (msPlayed > 0 && msTotal > 0) {
             char buf2[32];
-
+            int cnt;
+            
             sprintf(buf, "Position: %s (%.02f%%)", duration(msPlayed / 1000, buf2), msPlayed * 100.0 / msTotal);
             TextOut(hdc, 0, y, buf, strlen(buf));
             y += 15;
             sprintf(buf, "Length: %s", duration(msTotal / 1000, buf2));
             TextOut(hdc, 0, y, buf, strlen(buf));
-            y += 15;
+            y += 15 * 5;
+            SetRect(&rectDraw, 19, y, 225, y + 20);
+            FillRect(hdc, &rectDraw, brushBlack);
+            SetRect(&rectDraw, 20, y + 1, 224, y + 19);
+            FillRect(hdc, &rectDraw, brushGrey);
+            SetRect(&rectDraw, 20, y + 1, 20 + ((int)((float)msPlayed / (float)msTotal * 204.0)), y + 19);
+            FillRect(hdc, &rectDraw, brushLtGrey);
+            
+            for (cnt = 0; cnt < playMarkersCnt; cnt++) {
+                SetRect(&rectDraw, 20 + ((int)((float)playMarkers[cnt] / (float)msTotal * 204.0)), y + 1, 21 + ((int)((float)playMarkers[cnt] / (int)msTotal * 204.0)), y + 19);
+                FillRect(hdc, &rectDraw, brushYellow);
+            }
         }
     }
 
-    DeleteObject(brushBlack);
-    DeleteObject(brushBlue);
-    DeleteObject(brushLtBlue);
     EndPaint(hwnd, &ps);
 }
 

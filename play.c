@@ -31,6 +31,9 @@ int bytesPlayed = 0;
 unsigned int msPlayed = 0;
 unsigned int msTotal = 0;
 
+int *playMarkers = NULL;
+int playMarkersCnt = 0;
+
 int playSpeed = 1;
 int abortPlayThread = 0;
 int fastForwarding = 0;
@@ -213,6 +216,81 @@ void PlaySendMotd(void)
     return;
 }
 
+void PlayFindMarkers(void)
+{
+    unsigned char buf[65500];
+    short version, tibiaversion;
+    int msPlayed = 0;
+    int msTotal;
+    int chunk;
+    int delay;
+    unsigned short len;
+    gzFile fpFind;
+    
+    playMarkersCnt = 0;
+    
+    if (playMarkers) {
+        free(playMarkers);
+    }
+    
+    fpFind = gzopen(playFilename, "rb");
+    /* set the TibiaMovie revision */
+    buf[0] = gzgetc(fpFind);
+    buf[1] = gzgetc(fpFind);
+    memcpy(&version, &buf[0], 2);
+
+    /* set the Tibia version */
+    buf[0] = gzgetc(fpFind);
+    buf[1] = gzgetc(fpFind);
+    memcpy(&tibiaversion, &buf[0], 2);
+
+    /* set the duration (in milliseconds) of the movie */
+    buf[0] = gzgetc(fpFind);
+    buf[1] = gzgetc(fpFind);
+    buf[2] = gzgetc(fpFind);
+    buf[3] = gzgetc(fpFind);
+    memcpy(&msTotal, &buf[0], 4);
+
+    while (1) {
+        chunk = gzgetc(fpFind);
+        
+        if (chunk == EOF)
+            break;
+            
+        if (chunk == RECORD_CHUNK_DATA) {
+            /* get the delay to pause after the packet is sent (in milliseconds) */
+            buf[0] = gzgetc(fpFind);
+            buf[1] = gzgetc(fpFind);
+            buf[2] = gzgetc(fpFind);
+            buf[3] = gzgetc(fpFind);
+            memcpy(&delay, &buf[0], 4);
+
+            if (delay < 1000000)
+                msPlayed += delay;
+            
+            /* length of the packet */
+            buf[0] = gzgetc(fpFind);
+            buf[1] = gzgetc(fpFind);
+            memcpy(&len, &buf[0], 2);
+            
+            gzread(fpFind, buf, len);
+        }
+        else if (chunk == RECORD_CHUNK_MARKER) {
+            if (!playMarkers) {
+                playMarkers = (int *)malloc(sizeof(int) * 1);
+            }
+            else {
+                playMarkers = (int *)realloc(playMarkers, sizeof(int) * (playMarkersCnt + 1));
+            }
+            
+            playMarkers[playMarkersCnt] = msPlayed;
+            playMarkersCnt++;
+        }
+    }
+    
+    gzclose(fpFind);
+}
+
 void Play(void *nothing)
 {
     unsigned char buf[65500];
@@ -234,6 +312,13 @@ void Play(void *nothing)
      else
           playRec = 0;
 
+    if (!playRec) {
+        PlayFindMarkers();
+    }
+    else {
+        playMarkersCnt = 0;
+    }
+    
     /* do we need this? */
     /* Sleep(1000); */
 

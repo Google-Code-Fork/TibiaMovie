@@ -18,6 +18,7 @@
 extern HWND wMain;
 extern HWND btnRecord;
 extern HWND btnServers;
+extern HWND btnAddMarker;
 
 extern char saveFile[512];
 
@@ -59,6 +60,8 @@ extern int abortPlayThread;
 extern unsigned int msPlayed;
 extern unsigned int msTotal;
 extern int fastForwarding;
+extern int *playMarkers;
+extern int playMarkersCnt;
 
 void PlayListen(int port, int *sock);
 void PlayStart(void);
@@ -83,6 +86,7 @@ int AdjustPrivileges(void);
 extern int mode;
 void FindUnusedMovieName(void);
 void debugf(char *fmt, ...) __attribute__((format(printf, 1, 2)));
+extern HBRUSH brushBlack, brushBlue, brushLtBlue, brushGrey, brushYellow, brushWhite;
 /* end main.c */
 
 /* record.c */

@@ -160,6 +160,9 @@ void RecordEnd(void)
     
     if (sockRecordClientServer == -1) {
         SetWindowText(btnRecord, "Record");
+        RecordDisconnect();
+        ShowWindow(btnAddMarker, 0);
+        ShowWindow(btnServers, 0);
         mode = MODE_NONE;
     }
     else {
