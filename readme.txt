@@ -1,5 +1,5 @@
 .-----------------------------------------------------------------.
-| TibiaMovie 0.2.0 Revision 2 (http://tibiamovie.sourceforge.net) |
+| TibiaMovie 0.2.1 Revision 2 (http://tibiamovie.sourceforge.net) |
 '-----------------------------------------------------------------'
 
 1. Description
@@ -29,6 +29,10 @@ movie.
 
 You can speed up the playback by moving the Speed slider, or pause it by
 moving it all the way to the left.
+
+When in pause mode, you can click the ">" in the pause position to play back
+the next frame. This allows for "frame by frame" playback, letting you pause,
+getting to the right position, and taking a screenshot, for example.
 
 3. Movie recording
 ------------------
@@ -76,9 +80,9 @@ however.
 TibiaMovie has been tested only on Windows XP and I can't guarantee that it
 will work on any previous Windows systems. If it does, great!
 
-TibiaMovie does NOT play TibiCam .rec movies. I may add this compatibility if
-someone sends me a detailed description of the TibiCam .rec file format,
-however. :)
+TibiaMovie has very limited support for TibiCam .rec movies and will play
+old TibiCam .rec movies, but no guarantee or support is provided for TibiCam
+movie playback in TibiaMovie.
 
 5. Contact
 ----------
@@ -90,6 +94,14 @@ you can and I will try to fix it.
 Please don't use this email address for support questions as you should be able
 to figure out what to do from this readme! Support questions will go mostly
 ignored, sorry.
+
+Since we are hosted on SourceForge, support requests may be added at:
+
+    http://sourceforge.net/tracker/?atid=669131&group_id=114671&func=browse
+
+and bugs at:
+
+    http://sourceforge.net/tracker/?group_id=114671&atid=669130
 
 6. TODO
 -------
@@ -134,9 +146,10 @@ Linker=C:/Dev-Cpp/lib/libwsock32.a_@@_C:/Dev-Cpp/lib/libwinmm.a_@@_
 is specific to my system. Make sure these paths are valid for your system.
 
 I've provided a statically compiled zlib library, but it is possible to build
-this yourself from the sources. I downloaded
+this yourself from the sources. I downloaded:
 
-http://www.zlib.net/zlib121-dll.zip (precompiled)
+http://www.zlib.net/zlib121-dll.zip (precompiled, you can get the source from
+zlib.net yourself if you don't trust zlib.net either!)
 
 and used: libtool -D zlib1.dll -d zlib.def -l libzdll.a
 
