@@ -1,0 +1,13 @@
+/*
+ * resource.rc: the icon!
+ *
+ * Copyright 2004
+ * See the COPYING file for more information on licensing and use.
+ *
+ * This file contains the resource script reference to our icon.
+ */
+
+#include <windows.h>
+
+100 ICON DISCARDABLE "tibiamovie.ico"
+
