@@ -31,7 +31,7 @@ void ProxyHandleServer(HWND hwnd, char *buf);
 extern int TibiaVersionFound;
 
 //extern FILE *fp;
-extern gzFile fpRecord;
+extern FILE * fpRecord;
 
 #define MODE_NONE         0
 #define MODE_PLAY         1

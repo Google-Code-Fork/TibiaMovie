@@ -105,17 +105,17 @@ void PlaySendMotd(void)
     int len;
     short l, l2;
     char *pos = buf;
-    FILE *fp = NULL;
+    gzFile fp = NULL;
     
 
     dir = opendir(".");
     while ((e = readdir(dir)) != 0) {
         l = strlen(e->d_name);
         if (l > 4 && (strcasecmp(e->d_name + l - 4, ".tmv") == 0 || strcasecmp(e->d_name + l - 4, ".rec") == 0)) {
-            if ((fp = fopen(e->d_name, "r")) == NULL)
+            if ((fp = gzopen(e->d_name, "r")) == NULL)
                 continue;
 
-            fclose(fp);
+            gzclose(fp);
             filecount++;
         }
     }
@@ -150,7 +150,7 @@ void PlaySendMotd(void)
             short version = 0, tibiaversion = 0;
             int playRec;
             
-            if ((fp = fopen(e->d_name, "r")) == NULL)
+            if ((fp = gzopen(e->d_name, "r")) == NULL)
                  continue;
 
             if (strcasecmp(e->d_name + l - 4, ".rec") == 0)
@@ -158,9 +158,9 @@ void PlaySendMotd(void)
             else
                 playRec = 0;
                 
-            fread(&version, 2, 1, fp);
-            fread(&tibiaversion, 2, 1, fp);
-            fclose(fp);
+            gzread(fp, &version, 2);
+            gzread(fp, &tibiaversion, 2);
+            gzclose(fp);
 
             if (playRec)
                 tibiaversion = version;
