@@ -1,7 +1,7 @@
 /*
  * memory.c: memory injection
  *
- * Copyright 2004
+ * Copyright 2005
  * See the COPYING file for more information on licensing and use.
  *
  * This file contains all the memory injection related functions. Since Tibia

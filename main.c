@@ -1,7 +1,7 @@
 /*
  * main.c: where it all begins...
  *
- * Copyright 2004
+ * Copyright 2005
  * See the COPYING file for more information on licensing and use.
  *
  * This file contains the initial WinMain(), the main message-handling
@@ -181,6 +181,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
         case WM_COMMAND: {
             if ((HWND)lParam == NULL) {
                 switch (LOWORD(wParam)) {
+                    case MENU_FILE_MERGE: DialogBox(hInstance, MAKEINTRESOURCE(500), hwnd, MergeDlgProc); break;
                     case MENU_FILE_EXIT: PostMessage(hwnd, WM_CLOSE, 0, 0); break;
                     case MENU_OPTIONS_COMPAT_MODE:
                     {

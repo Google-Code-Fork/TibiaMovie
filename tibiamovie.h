@@ -1,12 +1,12 @@
 /*
  * tibiamovie.h: duh?
  *
- * Copyright 2004
+ * Copyright 2005
  * See the COPYING file for more information on licensing and use.
  *
  */
 
-#define TIBIAMOVIE_VERSION "0.2.9"
+#define TIBIAMOVIE_VERSION "0.3.0"
 #define MOVIEVERSION 2
 #define TIBIAPORT 7171
 
@@ -17,9 +17,19 @@
 #define RECORD_CHUNK_MARKER 0x01
 
 #define MENU_FILE_EXIT           300
-#define MENU_OPTIONS_COMPAT_MODE 301
-#define MENU_OPTIONS_OLD_CLIENT  302
-#define MENU_HELP_ABOUT          303
+#define MENU_FILE_MERGE          301
+#define MENU_OPTIONS_COMPAT_MODE 302
+#define MENU_OPTIONS_OLD_CLIENT  303
+#define MENU_HELP_ABOUT          304
+
+#define MERGE_ADD     100
+#define MERGE_LIST    101
+#define MERGE_STATIC  102
+#define MERGE_TO      103
+#define MERGE_STATIC2 104
+#define MERGE_UP      105
+#define MERGE_DOWN    106
+#define MERGE_DEL     107
 
 extern HWND wMain;
 extern HWND btnRecord;
@@ -101,6 +111,8 @@ int AdjustPrivileges(void);
 extern int mode;
 void FindUnusedMovieName(void);
 extern HBRUSH brushBlack, brushBlue, brushLtBlue, brushGrey, brushYellow, brushWhite;
+extern HINSTANCE hInstance;
+char *szClassName;
 /* end main.c */
 
 /* record.c */
@@ -128,3 +140,8 @@ void DoSocketRecord(HWND hwnd, int wEvent, int wError, int sock);
 void RecordAddMarker(void);
 LRESULT CALLBACK RecordChooseServerProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 /* end record.c */
+
+/* merge.c */
+BOOL CALLBACK MergeDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+/* end merge.c */
+

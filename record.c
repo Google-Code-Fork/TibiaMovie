@@ -1,7 +1,7 @@
 /*
  * record.c: movie recording
  *
- * Copyright 2004
+ * Copyright 2005
  * See the COPYING file for more information on licensing and use.
  *
  * This file contains all functions relating to recording a movie.

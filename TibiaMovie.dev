@@ -1,7 +1,7 @@
 [Project]
 FileName=TibiaMovie.dev
 Name=TibiaMovie
-UnitCount=6
+UnitCount=7
 Type=0
 Ver=1
 ObjFiles=
@@ -41,8 +41,8 @@ BuildCmd=
 
 [VersionInfo]
 Major=0
-Minor=2
-Release=9
+Minor=3
+Release=0
 Build=0
 LanguageID=1033
 CharsetID=1252
@@ -98,6 +98,16 @@ BuildCmd=
 
 [Unit4]
 FileName=record.c
+CompileCpp=0
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit7]
+FileName=merge.c
 CompileCpp=0
 Folder=
 Compile=1

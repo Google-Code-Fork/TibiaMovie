@@ -1,5 +1,5 @@
 .-----------------------------------------------------------------.
-| TibiaMovie 0.2.9 Revision 2 (http://tibiamovie.sourceforge.net) |
+| TibiaMovie 0.3.0 Revision 2 (http://tibiamovie.sourceforge.net) |
 '-----------------------------------------------------------------'
 
 1. Description
@@ -72,6 +72,9 @@ they wouldn't have to guess where to slow it back down.
 
 5. Menus
 --------
+File|Merge Movies...
+- Merge two or more movies into one
+
 File|Exit
 - Exits the program
 
@@ -90,7 +93,35 @@ Options|Old Tibia Client
 Help|About
 - About the program/copyright notices.
 
-6. Compatibility/Quirks
+6. Merging movies
+-----------------
+
+Merging movies is a feature that allows you to combine movies into one
+single movie.
+
+For example, say you went on two dragon hunts, and made two movies of them
+named DragHunt1.tmv and DragHunt2.tmv, you could combine the two movies
+together into BigDragHunt.tmv!
+
+To do this, you would:
+
+- Go to File|Merge Movies...
+- Click "Add Movie..." and select DragHunt1.tmv
+- Click "Add Movie..." and select DragHunt2.tmv
+- In the "Merge to" box, put BigDragHunt.tmv
+- Click on "Merge"
+
+You will now have an additional movie named BigDragHunt.tmv which has the
+two movies in it.
+
+Note: Be SURE to choose your output movie name wisely, as you CAN overwrite
+      existing movies! Always choose a new name for your output movie file.
+
+Note: It IS possible to combine movies from different Tibia versions, but
+      this will most likely result in Tibia crashing, so only do this if
+      you are sure it will not.
+
+7. Compatibility/Quirks
 ----------------
 
 Since TibiaMovie was created for Tibia 7.26, it will not be compatible with
@@ -104,7 +135,7 @@ TibiaMovie has very limited support for TibiCam .rec movies and will play
 old TibiCam .rec movies, but no guarantee or support is provided for TibiCam
 movie playback in TibiaMovie.
 
-7. Contact
+8. Contact
 ----------
 
 If you encounter a bug in TibiaMovie, please contact tibiamovie@erigol.com
@@ -123,7 +154,7 @@ and bugs at:
 
     http://sourceforge.net/tracker/?group_id=114671&atid=669130
 
-8. TODO
+9. TODO
 -------
 
 Some things I may or may not do:
@@ -132,7 +163,7 @@ Some things I may or may not do:
 - Ability to scramble peoples' names
 - Allow markers to be named, and the name shows up when playing back
 
-9. History of TibiaMovie
+10. History of TibiaMovie
 ------------------------
 
 TibiaMovie was created after much frustration from TibiCam. Whilst TibiCam is
@@ -148,7 +179,7 @@ TibiaMovie was also designed for speed, and therefore was written in C using
 the Windows API. There shouldn't be ANY noticable lag between playing in Tibia
 and recording a movie through TibiaMovie. If there is, this is a bug!
 
-10. Compiling the Source
+11. Compiling the Source
 -----------------------
 
 I won't be providing much support for the compilation of TibiaMovie. If you
@@ -178,7 +209,7 @@ Your mileage may vary!
 If you have any patches you'd like me to add to TibiaMovie, please send them
 to tibiamovie@erigol.com and I will consider them.
 
-11. Legal Stuff
+12. Legal Stuff
 --------------
 
 This program is not made, distributed, or supported by CipSoft GmbH.

@@ -1,7 +1,7 @@
 /*
  * play.c: movie playback
  *
- * Copyright 2004
+ * Copyright 2005
  * See the COPYING file for more information on licensing and use.
  *
  * This file contains all functions relating to playing back a movie.
@@ -147,7 +147,9 @@ void PlaySendMotd(void)
             if ((fp = gzopen(e->d_name, "rb")) == NULL)
                 continue;
 
-            gzread(fp, &version, 2);
+            if (gzread(fp, &version, 2) <= 0)
+                continue;
+                
             gzread(fp, &tibiaversion, 2);
             gzclose(fp);
             
@@ -178,7 +180,9 @@ void PlaySendMotd(void)
             if ((fp = gzopen(e->d_name, "rb")) == NULL)
                 continue;
 
-            gzread(fp, &version, 2);
+            if (gzread(fp, &version, 2) <= 0)
+                continue;
+                
             gzread(fp, &tibiaversion, 2);
             gzclose(fp);
 
