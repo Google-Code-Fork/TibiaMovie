@@ -131,13 +131,14 @@ void PlaySendMotd(void)
     char motd[1024];
     int motdlen;
     int port = 7172;
-    int premdays = 1337;
+    int premdays;
     int len;
     short l, l2;
     char *pos = buf;
     gzFile fp = NULL;
     FILELIST **files = NULL;
     int cnt;
+    short version = 0, tibiaversion = 0;
     
     dir = opendir(".");
     while ((e = readdir(dir)) != 0) {
@@ -146,7 +147,13 @@ void PlaySendMotd(void)
             if ((fp = gzopen(e->d_name, "rb")) == NULL)
                 continue;
 
+            gzread(fp, &version, 2);
+            gzread(fp, &tibiaversion, 2);
             gzclose(fp);
+            
+            if (compatmode && tibiaversion != TibiaVersionFound)
+                continue;
+                
             filecount++;
         }
     }
@@ -160,12 +167,13 @@ void PlaySendMotd(void)
             files[cnt] = (FILELIST *)malloc(sizeof(FILELIST));
     }
 
+    premdays = filecount;
+    
     cnt = 0;
     dir = opendir(".");
     while ((e = readdir(dir)) != 0) {
         l = strlen(e->d_name);
         if (l > 4 && (strcasecmp(e->d_name + l - 4, ".tmv") == 0 || strcasecmp(e->d_name + l - 4, ".rec") == 0)) {
-            short version = 0, tibiaversion = 0;
             
             if ((fp = gzopen(e->d_name, "rb")) == NULL)
                 continue;
@@ -173,6 +181,9 @@ void PlaySendMotd(void)
             gzread(fp, &version, 2);
             gzread(fp, &tibiaversion, 2);
             gzclose(fp);
+
+            if (compatmode && tibiaversion != TibiaVersionFound)
+                continue;
 
             if (files[cnt]) {
                 files[cnt]->filename = (char *)malloc(sizeof(char) * (strlen(e->d_name) + 1));

@@ -16,6 +16,10 @@
 #define RECORD_CHUNK_DATA   0x00
 #define RECORD_CHUNK_MARKER 0x01
 
+#define MENU_FILE_EXIT           300
+#define MENU_OPTIONS_COMPAT_MODE 301
+#define MENU_HELP_ABOUT          302
+
 extern HWND wMain;
 extern HWND btnRecord;
 extern HWND btnServers;
@@ -26,6 +30,7 @@ extern char saveFile[512];
 
 extern int memorySaveCnt;
 extern int debug;
+extern int compatmode;
 
 extern unsigned long int lastDraw;
 

@@ -16,6 +16,7 @@
 #include "tibiamovie.h"
 
 LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+BOOL CALLBACK AboutDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 void OnPaint(HWND hwnd, int message, WPARAM wParam, LPARAM lParam);
 
 char *szClassName = "TibiaMovie";
@@ -36,6 +37,7 @@ int mode = 0;
 
 int debug = 0;
 int enableFrame = 0;
+int compatmode = 0;
 
 unsigned long int lastDraw = 0;
 
@@ -62,7 +64,7 @@ int WINAPI WinMain(HINSTANCE hThisInstance, HINSTANCE hPrevInstance, char *lpszA
     wincl.hIcon         = LoadIcon(hThisInstance, MAKEINTRESOURCE(100));
     wincl.hIconSm       = LoadIcon(hThisInstance, MAKEINTRESOURCE(100));
     wincl.hCursor       = LoadCursor(NULL, IDC_ARROW);
-    wincl.lpszMenuName  = NULL;
+    wincl.lpszMenuName  = MAKEINTRESOURCE(300);
     wincl.cbClsExtra    = 0;
     wincl.cbWndExtra    = 0;
     wincl.hbrBackground = (HBRUSH)COLOR_BACKGROUND;
@@ -78,7 +80,7 @@ int WINAPI WinMain(HINSTANCE hThisInstance, HINSTANCE hPrevInstance, char *lpszA
            CW_USEDEFAULT,
            CW_USEDEFAULT,
            250, /* width */
-           298, /* height */
+           317, /* height */
            HWND_DESKTOP,
            NULL,
            hThisInstance,
@@ -176,6 +178,24 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             break;
         }
         case WM_COMMAND: {
+            if ((HWND)lParam == NULL) {
+                switch (LOWORD(wParam)) {
+                    case MENU_FILE_EXIT: PostMessage(hwnd, WM_CLOSE, 0, 0); break;
+                    case MENU_OPTIONS_COMPAT_MODE:
+                    {
+                        HMENU menu = GetMenu(hwnd);
+                        CheckMenuItem(menu, MENU_OPTIONS_COMPAT_MODE, !compatmode ? MF_CHECKED | MF_BYCOMMAND: 0);
+                        compatmode = !compatmode;
+                        break;
+                    }
+                    case MENU_HELP_ABOUT:
+                        DialogBox(hInstance, MAKEINTRESOURCE(400), hwnd, AboutDlgProc);
+                        break;
+                }
+                
+                break;
+            }
+            
             /* Activate button pressed */
             if ((HWND)lParam == btnActivate) {
                 if (!memoryActivated)
@@ -517,6 +537,25 @@ void OnPaint(HWND hwnd, int message, WPARAM wParam, LPARAM lParam)
     }
 
     EndPaint(hwnd, &ps);
+}
+
+BOOL CALLBACK AboutDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+     switch (message)
+     {
+     case WM_INITDIALOG:
+          return 1;
+
+     case WM_COMMAND:
+          switch (LOWORD(wParam)) {
+          case IDOK:
+          case IDCANCEL:
+               EndDialog (hDlg, 0);
+               return 1;
+          }
+          break;
+     }
+     return 0;
 }
 
 void debugf(char *fmt, ...)
