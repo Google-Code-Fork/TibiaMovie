@@ -238,7 +238,7 @@ void DoSocketRecord(HWND hwnd, int wEvent, int wError, int sock)
     }
 
     if (wEvent == FD_CLOSE
-        && (sock == sockRecordClientServer || sock == sockRecordConnectServer)
+        && (sock == sockRecordConnectServer)
        ) {
         closesocket(sockRecordClientServer);
         closesocket(sockRecordConnectServer);
@@ -338,6 +338,8 @@ void DoSocketRecord(HWND hwnd, int wEvent, int wError, int sock)
                     
                     if (servers[c].ip != 0) {
                         memcpy(ip, &servers[c].ip, 4);
+                        closesocket(sockRecordClientCharacter);
+                        sockRecordClientCharacter = -1;
                         sprintf(ipbuf, "%d.%d.%d.%d", (unsigned char)ip[0], (unsigned char)ip[1], (unsigned char)ip[2], (unsigned char)ip[3]);
                         RecordConnect(&sockRecordConnectServer, ipbuf, servers[c].port);
                     }
