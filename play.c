@@ -38,7 +38,10 @@ int playSpeed = 1;
 int abortPlayThread = 0;
 int fastForwarding = 0;
 int playRec = 0;
+int playing = 0;
 int nextPacket = 0;
+int numPackets = 0;
+int curPacket = 0;
 
 void PlayListen(int port, int *sock)
 {
@@ -68,6 +71,7 @@ void PlayListen(int port, int *sock)
 
 void PlayStart(void)
 {
+    playing = 0;
     PlayListen(TIBIAPORT, &sockPlayListenCharacter);
     PlayListen(7172, &sockPlayListenServer);
     return;
@@ -79,7 +83,8 @@ void PlayEnd(void)
     closesocket(sockPlayClientCharacter);
     closesocket(sockPlayListenServer);
     closesocket(sockPlayClientServer);
-
+    playing = 0;
+    
     /* if the play thread is still going, break on the next iteration */
     abortPlayThread = 1;
     return;
@@ -96,6 +101,27 @@ void PlayAccept(int fromsock, int *tosock)
     return;
 }
 
+struct filelist {
+    char *filename;
+    int version;
+};
+
+typedef struct filelist FILELIST;
+
+int files_cmp(const void *x, const void *y)
+{   
+    FILELIST *dx = *(FILELIST **)x;
+    FILELIST *dy = *(FILELIST **)y;
+    
+    char       *cdx;
+    char       *cdy;
+            
+    cdx = dx->filename;
+    cdy = dy->filename;
+   
+    return strcasecmp(cdx, cdy);
+}
+
 void PlaySendMotd(void)
 {
     DIR *dir;
@@ -110,13 +136,14 @@ void PlaySendMotd(void)
     short l, l2;
     char *pos = buf;
     gzFile fp = NULL;
+    FILELIST **files = NULL;
+    int cnt;
     
-
     dir = opendir(".");
     while ((e = readdir(dir)) != 0) {
         l = strlen(e->d_name);
         if (l > 4 && (strcasecmp(e->d_name + l - 4, ".tmv") == 0 || strcasecmp(e->d_name + l - 4, ".rec") == 0)) {
-            if ((fp = gzopen(e->d_name, "r")) == NULL)
+            if ((fp = gzopen(e->d_name, "rb")) == NULL)
                 continue;
 
             gzclose(fp);
@@ -125,9 +152,40 @@ void PlaySendMotd(void)
     }
     closedir(dir);
 
-    /* TODO: do we need this? */
-    /* Sleep(1000); */
+    if (filecount > 0) {
+        files = (FILELIST **)malloc(sizeof(FILELIST *) * filecount);
+        memset(files, 0, sizeof(FILELIST *) * filecount);
+        
+        for (cnt = 0; cnt < filecount; cnt++)
+            files[cnt] = (FILELIST *)malloc(sizeof(FILELIST));
+    }
 
+    cnt = 0;
+    dir = opendir(".");
+    while ((e = readdir(dir)) != 0) {
+        l = strlen(e->d_name);
+        if (l > 4 && (strcasecmp(e->d_name + l - 4, ".tmv") == 0 || strcasecmp(e->d_name + l - 4, ".rec") == 0)) {
+            short version = 0, tibiaversion = 0;
+            
+            if ((fp = gzopen(e->d_name, "rb")) == NULL)
+                continue;
+
+            gzread(fp, &version, 2);
+            gzread(fp, &tibiaversion, 2);
+            gzclose(fp);
+
+            if (files[cnt]) {
+                files[cnt]->filename = (char *)malloc(sizeof(char) * (strlen(e->d_name) + 1));
+                strcpy(files[cnt]->filename, e->d_name);
+                files[cnt]->version = tibiaversion;
+                cnt++;
+            }
+        }
+    }
+    closedir(dir);
+
+    qsort(files, filecount, sizeof(FILELIST *), files_cmp);
+    
     /* fill in the first two bytes later on with the packet length */
     pos += 2;
 
@@ -147,61 +205,43 @@ void PlaySendMotd(void)
     *pos++ = filecount;
 
     /* display all files to the client */
-    dir = opendir(".");
-    while ((e = readdir(dir)) != 0) {
-        l = strlen(e->d_name);
-        if (l > 4 && (strcasecmp(e->d_name + l - 4, ".tmv") == 0 || strcasecmp(e->d_name + l - 4, ".rec") == 0)) {
-            short version = 0, tibiaversion = 0;
-            int playRec;
-            
-            if ((fp = gzopen(e->d_name, "r")) == NULL)
-                 continue;
+    for (cnt = 0; cnt < filecount; cnt++) {
+        short tibiaversion = 0;
+        
+        l = strlen(files[cnt]->filename);
+        tibiaversion = files[cnt]->version;
+        
+        /* send the length of the filename */
+        memcpy(pos, &l, 2); pos += 2;
 
-            if (strcasecmp(e->d_name + l - 4, ".rec") == 0)
-                playRec = 1;
-            else
-                playRec = 0;
-                
-            gzread(fp, &version, 2);
-            gzread(fp, &tibiaversion, 2);
-            gzclose(fp);
+        /* send the file itself */
+        memcpy(pos, files[cnt]->filename, l); pos += l;
 
-            if (playRec)
-                tibiaversion = version;
-                
-            /* send the length of the filename */
-            memcpy(pos, &l, 2); pos += 2;
-
-            /* send the file itself */
-            memcpy(pos, e->d_name, l); pos += l;
-
-            /* if the tibia version is 0 for some reason, send a default string as the server name */
-            if (tibiaversion == 0) {
-                *pos++ = 10;
-                *pos++ = 0x00;
-                strcpy(pos, "TibiaMovie"); pos += 10;
-            }
-            else {
-                char buf2[20];
-                 
-                sprintf(buf2, "%.02f", tibiaversion / 100.0);
-                l2 = strlen(buf2);
-
-                /* send the length of the server string */
-                memcpy(pos, &l2, 2); pos += 2;
-
-                /* send the server string */
-                memcpy(pos, buf2, l2); pos += l2;
-            }
-
-            /* send the IP address (127.0.0.1) */
-            *pos++ = 127; *pos++ = 0; *pos++ = 0; *pos++ = 1;
-
-            /* send the port */
-            memcpy(pos, &port, 2); pos += 2;
+        /* if the tibia version is 0 for some reason, send a default string as the server name */
+        if (tibiaversion == 0) {
+            *pos++ = 10;
+            *pos++ = 0x00;
+            strcpy(pos, "TibiaMovie"); pos += 10;
         }
+        else {
+            char buf2[20];
+                 
+            sprintf(buf2, "%.02f", tibiaversion / 100.0);
+            l2 = strlen(buf2);
+
+            /* send the length of the server string */
+            memcpy(pos, &l2, 2); pos += 2;
+
+            /* send the server string */
+            memcpy(pos, buf2, l2); pos += l2;
+        }
+
+        /* send the IP address (127.0.0.1) */
+        *pos++ = 127; *pos++ = 0; *pos++ = 0; *pos++ = 1;
+
+        /* send the port */
+        memcpy(pos, &port, 2); pos += 2;
     }
-    closedir(dir);
 
     /* send the number of premium days remaining */
     memcpy(pos, &premdays, 2); pos += 2;
@@ -214,6 +254,16 @@ void PlaySendMotd(void)
     /* finally! send the payload */
     send(sockPlayClientCharacter, buf, len + 2, 0);
 
+    for (cnt = 0; cnt < filecount; cnt++) {
+        if (files && files[cnt]) {
+            free(files[cnt]->filename);
+            free(files[cnt]);
+        }
+    }
+    
+    if (files)
+        free(files);
+        
     return;
 }
 
@@ -259,6 +309,7 @@ void PlayFindMarkers(void)
             break;
             
         if (chunk == RECORD_CHUNK_DATA) {
+            numPackets++;
             /* get the delay to pause after the packet is sent (in milliseconds) */
             buf[0] = gzgetc(fpFind);
             buf[1] = gzgetc(fpFind);
@@ -313,6 +364,9 @@ void Play(void *nothing)
      else
           playRec = 0;
 
+    numPackets = 0;
+    curPacket = 0;
+    
     if (!playRec) {
         PlayFindMarkers();
     }
@@ -325,6 +379,8 @@ void Play(void *nothing)
 
     fpPlay = gzopen(playFilename, "rb");
 
+    playing = 1;
+    
     if (fpPlay) {
         if (!playRec) {
             /* set the TibiaMovie revision */
@@ -390,6 +446,7 @@ void Play(void *nothing)
         while (abortPlayThread == 0) {
             int threadplaySpeed = playSpeed;
             int threadnextPacket = 0;
+            int frame = 0;
             
             /* the word "CHUNK" is added to debug-style .tmv files, this ignores it */
             /* getc(fpPlay);getc(fpPlay);getc(fpPlay);getc(fpPlay);getc(fpPlay); */
@@ -500,6 +557,7 @@ void Play(void *nothing)
                     nextPacket = 0;
                     threadnextPacket = 0;
                     msPlayed += delay;
+                    frame = 1;
                 }
                 else if (threadplaySpeed == 0) {
                     break;
@@ -545,6 +603,7 @@ void Play(void *nothing)
                 }
                 
                 sent = send(sockPlayClientServer, buf, len, 0);
+                curPacket++;
                 
                 if (sent == -1)
                     break;
@@ -556,8 +615,13 @@ void Play(void *nothing)
                     
                     memcpy(&mylen, &buf[0], 2);
                     
-                    if (mylen < len - 2) {
-                        sprintf(msgbuf, "Recorded in Tibia %.02f using TibiaMovie %d. "
+                    /* whilst this interferes with the tibia protocol by injecting our
+                     * own message (harmless anyway), this should still be legal as
+                     * since it's only in playback it doesn't interact with the tibia
+                     * servers whatsoever.
+                     */
+                    if (mylen == len - 2) {
+                        sprintf(msgbuf, "Recorded in Tibia %.02f using TibiaMovie (%d). "
                                         "Get TibiaMovie at tibiamovie.sourceforge.net/",
                                         tibiaversion / 100.0, version);
                         SendStatusMessage(sockPlayClientServer, msgbuf);
@@ -567,14 +631,18 @@ void Play(void *nothing)
 
                 bytesPlayed += len + 7;
 
-                /* update "bytes played" in the window */
-                InvalidateRect(wMain, NULL, TRUE);
+                /* update "bytes played" in the window, but don't update too often otherwise we get flickering */
+                if (GetTickCount() > lastDraw + 200 || frame) {
+                    InvalidateRect(wMain, NULL, TRUE);
+                    lastDraw = GetTickCount();
+                }
             } /* end data chunk check */
             else if (chunk == RECORD_CHUNK_MARKER) {
                 if (fastForwarding == 1) {
                     /* marker detected, reset the play speed if the button was pressed */
                     playSpeed = 1;
                     fastForwarding = 0;
+                    EnableWindow(btnGoToMarker, 1);
                 }
 
                 bytesPlayed++;
@@ -584,6 +652,7 @@ void Play(void *nothing)
         gzclose(fpPlay);
     }
 
+    playing = 0;
     msPlayed = msTotal;
     InvalidateRect(wMain, NULL, TRUE);
     closesocket(sockPlayClientServer);

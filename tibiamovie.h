@@ -6,6 +6,7 @@
  *
  */
 
+#define TIBIAMOVIE_VERSION "0.2.1"
 #define MOVIEVERSION 2
 #define TIBIAPORT 7171
 
@@ -19,11 +20,14 @@ extern HWND wMain;
 extern HWND btnRecord;
 extern HWND btnServers;
 extern HWND btnAddMarker;
+extern HWND btnGoToMarker;
 
 extern char saveFile[512];
 
 extern int memorySaveCnt;
 extern int debug;
+
+extern unsigned long int lastDraw;
 
 /* proxy.c */
 void ProxyAccept(HWND hwnd, int socket);
@@ -56,6 +60,7 @@ extern char playFilename[512];
 extern gzFile fpPlay;
 extern int bytesPlayed;
 extern int playSpeed;
+extern int playing;
 extern int abortPlayThread;
 extern unsigned int msPlayed;
 extern unsigned int msTotal;
@@ -63,6 +68,8 @@ extern int fastForwarding;
 extern int *playMarkers;
 extern int playMarkersCnt;
 extern int nextPacket;
+extern int numPackets;
+extern int curPacket;
 
 void PlayListen(int port, int *sock);
 void PlayStart(void);

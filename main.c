@@ -37,6 +37,8 @@ int mode = 0;
 int debug = 0;
 int enableFrame = 0;
 
+unsigned long int lastDraw = 0;
+
 /* filename saving stuff */
 OPENFILENAME ofn;
 char *ofntitle = "Record Movie to...";
@@ -71,12 +73,12 @@ int WINAPI WinMain(HINSTANCE hThisInstance, HINSTANCE hPrevInstance, char *lpszA
     hwnd = CreateWindowEx(
            0,
            szClassName,
-           "TibiaMovie",
+           "TibiaMovie " TIBIAMOVIE_VERSION,
            WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
            CW_USEDEFAULT,
            CW_USEDEFAULT,
            250, /* width */
-           290, /* height */
+           298, /* height */
            HWND_DESKTOP,
            NULL,
            hThisInstance,
@@ -137,7 +139,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
         case WM_CREATE: {
             WSADATA WSAData;
             int iError;
-
+            
             brushBlack  = CreateSolidBrush(RGB(0, 0, 0));
             brushLtGrey = CreateSolidBrush(RGB(192, 192, 192));
             brushGrey   = CreateSolidBrush(RGB(128, 128, 128));
@@ -191,6 +193,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             else if ((HWND)lParam == btnPlay) {
                 if (mode == MODE_NONE) {
                     mode = MODE_PLAY;
+                    bytesPlayed = 0; msPlayed = 0;
                     PlayStart();
                 }
                 else if (mode == MODE_RECORD || mode == MODE_RECORD_PAUSE)
@@ -268,9 +271,10 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                 RecordAddMarker();
             }
             /* Go To Next Marker button pressed */
-            else if ((HWND)lParam == btnGoToMarker) {
+            else if ((HWND)lParam == btnGoToMarker && playing) {
                 fastForwarding = 1;
                 playSpeed = 10;
+                EnableWindow((HWND)lParam, 0);
             }
             else if ((HWND)lParam == btnServers) {
                 int msg = HIWORD(wParam);
@@ -306,6 +310,11 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                if (PtInRect(&rect, pt)) {
                    int newspeed = ((pt.x - 60) / 15);
                    if (newspeed != playSpeed) {
+                       if (fastForwarding) {
+                           EnableWindow(btnGoToMarker, 1);
+                           fastForwarding = 0;
+                       }
+                       
                        playSpeed = newspeed;
                        SetRect(&rect, 0, 91, 300, 106);
                        InvalidateRect(hwnd, &rect, TRUE);
@@ -329,7 +338,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                 break;
                 
             SetRect(&rect, 60, 91, 60 + 15, 91 + 15);
-            if (enableFrame && PtInRect(&rect, pt)) {
+            if (enableFrame && PtInRect(&rect, pt) && playing) {
                 nextPacket = 1;
             }
             break;
@@ -410,8 +419,17 @@ void OnPaint(HWND hwnd, int message, WPARAM wParam, LPARAM lParam)
     y = 60;
     sprintf(buf, "Memory Injection: %s", memoryActivated ? "Enabled" : "Disabled");
     TextOut(hdc, 0, y, buf, strlen(buf)); y += 15;
-    sprintf(buf, "Mode: %s", mode == MODE_NONE ? "None" : mode == MODE_PLAY ? "Play" : "Record");
-    TextOut(hdc, 0, y, buf, strlen(buf)); y += 15;
+    if (mode == MODE_NONE) {
+        y += 15;
+        sprintf(buf, "  Choose a mode by clicking");
+        TextOut(hdc, 0, y, buf, strlen(buf)); y += 15;
+        sprintf(buf, " on either 'Play' or 'Record'.");
+        TextOut(hdc, 0, y, buf, strlen(buf)); y += 15;
+    }
+    else {
+        sprintf(buf, "Mode: %s", mode == MODE_PLAY ? "Play" : "Record");
+        TextOut(hdc, 0, y, buf, strlen(buf)); y += 15;
+    }
 
     if (mode == MODE_PLAY) {
         int cnt;
@@ -479,7 +497,11 @@ void OnPaint(HWND hwnd, int message, WPARAM wParam, LPARAM lParam)
             y += 15;
             sprintf(buf, "Length: %s", duration(msTotal / 1000, buf2));
             TextOut(hdc, 0, y, buf, strlen(buf));
-            y += 15 * 5;
+            y += 15;
+            sprintf(buf, "Packet: %d of %d", curPacket, numPackets);
+            TextOut(hdc, 0, y, buf, strlen(buf));
+            
+            y += 15 * 4;
             SetRect(&rectDraw, 19, y, 225, y + 20);
             FillRect(hdc, &rectDraw, brushBlack);
             SetRect(&rectDraw, 20, y + 1, 224, y + 19);

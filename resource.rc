@@ -20,3 +20,5 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,129,24,50,14
     EDITTEXT        201,7,15,117,14,ES_AUTOHSCROLL
 END
+
+1 24 "resource.manifest"
