@@ -402,8 +402,28 @@ void Play(void *nothing)
                     }
                 }
 
+#define DELAY_UPDATE 1000
+
                 /* delay for delay milliseconds, depending on speed */
-                Sleep(delay / playSpeed);
+                if (delay / playSpeed < DELAY_UPDATE) {
+                    Sleep(delay / playSpeed);
+                    msPlayed += delay;
+                }
+                else {
+                    int ndelay = delay;
+                    
+                    while (ndelay >= DELAY_UPDATE) {
+                        ndelay -= DELAY_UPDATE;
+                        Sleep(DELAY_UPDATE / playSpeed);
+                        msPlayed += DELAY_UPDATE;
+                        InvalidateRect(wMain, NULL, TRUE);
+                    }
+                    
+                    if (ndelay > 0) {
+                        Sleep(ndelay / playSpeed);
+                        msPlayed += ndelay;
+                    }
+                }
                 
                 sent = send(sockPlayClientServer, buf, len, 0);
                 
@@ -421,7 +441,6 @@ void Play(void *nothing)
                 }
 
                 bytesPlayed += len + 7;
-                msPlayed += delay;
 
                 /* update "bytes played" in the window */
                 InvalidateRect(wMain, NULL, TRUE);

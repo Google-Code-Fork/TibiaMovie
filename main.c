@@ -171,7 +171,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                     mode = MODE_PLAY;
                     PlayStart();
                 }
-                else if (mode == MODE_RECORD)
+                else if (mode == MODE_RECORD || mode == MODE_RECORD_PAUSE)
                     ;
                 else {
                     mode = MODE_NONE;
@@ -196,15 +196,24 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                 }
                 else if (mode == MODE_PLAY)
                     ;
-                else {
-                    mode = MODE_NONE;
+                else if (mode == MODE_RECORD) {
+                    mode = MODE_RECORD_PAUSE;
                     RecordEnd();
                 }
-                    
+                else if (mode == MODE_RECORD_PAUSE) {
+                    mode = MODE_NONE;
+                    RecordDisconnect();
+                }
+
                 if (mode == MODE_RECORD) {
                     ShowWindow(btnAddMarker, 1);
                     ShowWindow(btnServers, 1);
                     SetWindowText(btnRecord, "Stop");
+                }
+                else if (mode == MODE_RECORD_PAUSE) {
+                    ShowWindow(btnAddMarker, 0);
+                    ShowWindow(btnServers, 0);
+                    SetWindowText(btnRecord, "Disconnect");
                 }
                 else {
                     ShowWindow(btnAddMarker, 0);

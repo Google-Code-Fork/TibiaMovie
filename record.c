@@ -104,20 +104,13 @@ void RecordStart(void)
 
 void RecordEnd(void)
 {
-    closesocket(sockRecordListenCharacter);
-    closesocket(sockRecordClientCharacter);
-    closesocket(sockRecordConnectCharacter);
-
-    closesocket(sockRecordListenServer);
-    closesocket(sockRecordClientServer);
-    closesocket(sockRecordConnectServer);
-
     if (fpRecord) {
         char nullbuf[2] = {0, 0};
         unsigned int delay;
         short len = 0;
         delay = timeGetTime() - recordStart;
         recordTotal += delay;
+        fputc(RECORD_CHUNK_DATA, fpRecord);
         fwrite(&delay, 4, 1, fpRecord);
         fwrite(&len, 2, 1, fpRecord);
         fwrite(nullbuf, len, 1, fpRecord);
@@ -135,9 +128,22 @@ void RecordEnd(void)
     serverQueuePos = serverQueueBuf;
 
     FindUnusedMovieName();
-    mode = MODE_NONE;
-    SetWindowText(btnRecord, "Record");
+    mode = MODE_RECORD_PAUSE;
+    SetWindowText(btnRecord, "Disconnect");
     InvalidateRect(wMain, NULL, TRUE);
+    return;
+}
+
+void RecordDisconnect(void)
+{
+    closesocket(sockRecordListenCharacter);
+    closesocket(sockRecordClientCharacter);
+    closesocket(sockRecordConnectCharacter);
+
+    closesocket(sockRecordListenServer);
+    closesocket(sockRecordClientServer);
+    closesocket(sockRecordConnectServer);
+
     return;
 }
 
@@ -199,6 +205,7 @@ void DoSocketRecord(HWND hwnd, int wEvent, int wError, int sock)
         closesocket(sockRecordConnectServer);
         sockRecordConnectServerConnected = 0;
         RecordEnd();
+        RecordDisconnect();
         return;
     }
 
@@ -319,7 +326,9 @@ void DoSocketRecord(HWND hwnd, int wEvent, int wError, int sock)
                 closesocket(sockRecordConnectServer);
             }
             else {
-                RecordData(buf, cnt);
+                if (mode == MODE_RECORD)
+                    RecordData(buf, cnt);
+                    
                 send(sockRecordClientServer, buf, cnt, 0);
             }
         }

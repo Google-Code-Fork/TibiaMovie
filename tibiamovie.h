@@ -33,9 +33,10 @@ extern int TibiaVersionFound;
 //extern FILE *fp;
 extern FILE *fpRecord;
 
-#define MODE_NONE   0
-#define MODE_PLAY   1
-#define MODE_RECORD 2
+#define MODE_NONE         0
+#define MODE_PLAY         1
+#define MODE_RECORD       2
+#define MODE_RECORD_PAUSE 3
 extern int mode;
 
 extern unsigned int recordStart;
@@ -102,6 +103,7 @@ void RecordFillServerBox(void);
 void RecordData(unsigned char *buf, short len);
 void RecordStart(void);
 void RecordEnd(void);
+void RecordDisconnect(void);
 void DoSocketRecord(HWND hwnd, int wEvent, int wError, int sock);
 void RecordAddMarker(void);
 /* end record.c */
