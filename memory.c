@@ -55,6 +55,16 @@ struct memoryVersionStruct memoryVersion[] = {
     { 727, (LPVOID)0x0051faa8, "tibia1.cipsoft.com", 18 },
     { 727, (LPVOID)0x0051fb18, "tibia2.cipsoft.com", 18 },
 
+    /* 7.3 */
+    { 730, (LPVOID)0x00480394, "tibia2.cipsoft.com", 18 },
+    { 730, (LPVOID)0x004803a8, "tibia1.cipsoft.com", 18 },
+    { 730, (LPVOID)0x004803bc, "server.tibia.com",   16 },
+    { 730, (LPVOID)0x004803d0, "server2.tibia.com",  17 },
+    { 730, (LPVOID)0x0051ce10, "server.tibia.com",   16 },
+    { 730, (LPVOID)0x0051ce80, "server2.tibia.com",  17 },
+    { 730, (LPVOID)0x0051cef0, "tibia1.cipsoft.com", 18 },
+    { 730, (LPVOID)0x0051cf60, "tibia2.cipsoft.com", 18 },
+
 /* add new (or old?) versions here :) */
    {   0, (LPVOID)0x00000000, "",                    0 }
 };
