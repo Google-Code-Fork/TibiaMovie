@@ -663,6 +663,12 @@ void Play(void *nothing)
         gzclose(fpPlay);
     }
 
+    if (fastForwarding == 1) {
+        playSpeed = 1;
+        fastForwarding = 0;
+        EnableWindow(btnGoToMarker, 1);
+    }
+    
     playing = 0;
     msPlayed = msTotal;
     InvalidateRect(wMain, NULL, TRUE);
