@@ -258,7 +258,10 @@ void DoSocketRecord(HWND hwnd, int wEvent, int wError, int sock)
         
         /* act as a proxy for the "character list" */
         RecordAccept(sock, &sockRecordClientCharacter);
-        RecordConnect(&sockRecordConnectCharacter, loginservers[cnt], TIBIAPORT);
+        if (cnt != loginserver_last)
+            RecordConnect(&sockRecordConnectCharacter, loginservers[cnt], TIBIAPORT);
+        else
+            RecordConnect(&sockRecordConnectCharacter, customloginserver, TIBIAPORT);
         return;
     }
 
@@ -320,7 +323,7 @@ void DoSocketRecord(HWND hwnd, int wEvent, int wError, int sock)
                 memcpy(serverQueuePos, buf, cnt);
                 serverQueuePos += cnt;
 
-                if (cnt > 20) {
+                if ((cnt > 20 && !oldtibia) || (cnt > 10 && oldtibia)) {
                     short namelen;
                     char name[256];
                     char ip[4];
@@ -328,9 +331,15 @@ void DoSocketRecord(HWND hwnd, int wEvent, int wError, int sock)
                     int c;
 
                     ZeroMemory(name, sizeof(name));
-                    memcpy(&namelen, &buf[12], 2);
-                    memcpy(name, &buf[14], namelen);
-
+                    if (!oldtibia) {
+                        memcpy(&namelen, &buf[12], 2);
+                        memcpy(name, &buf[14], namelen);
+                    }
+                    else {
+                        memcpy(&namelen, &buf[8], 2);
+                        memcpy(name, &buf[10], namelen);
+                    }
+                    
                     for (c = 0; servers[c].ip != 0; c++) {
                         if (memcmp(name, servers[c].characterName, namelen) == 0)
                             break;
@@ -435,7 +444,6 @@ void RecordMotdModify(char *buf)
         servers[serverspos].port = port;
         memcpy(servers[serverspos].characterName, namebuf, namelen);
         servers[serverspos].characterLength = namelen;
-
         serverspos++;
     }
 

@@ -31,6 +31,7 @@ BEGIN
     POPUP "&Options"
     BEGIN
         MENUITEM "Only Show &Compatible Movies", MENU_OPTIONS_COMPAT_MODE
+        MENUITEM "&Old Tibia Client",            MENU_OPTIONS_OLD_CLIENT
     END
     POPUP "&Help"
     BEGIN

@@ -38,6 +38,7 @@ int mode = 0;
 int debug = 0;
 int enableFrame = 0;
 int compatmode = 0;
+int oldtibia = 0;
 
 unsigned long int lastDraw = 0;
 
@@ -186,6 +187,18 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                         HMENU menu = GetMenu(hwnd);
                         CheckMenuItem(menu, MENU_OPTIONS_COMPAT_MODE, !compatmode ? MF_CHECKED | MF_BYCOMMAND: 0);
                         compatmode = !compatmode;
+                        break;
+                    }
+                    case MENU_OPTIONS_OLD_CLIENT:
+                    {
+                        HMENU menu = GetMenu(hwnd);
+                        CheckMenuItem(menu, MENU_OPTIONS_OLD_CLIENT, !oldtibia ? MF_CHECKED | MF_BYCOMMAND: 0);
+                        oldtibia = !oldtibia;
+                        
+                        if (oldtibia && !memoryActivated) {
+                            TibiaVersionFound = 710;
+                        }
+                        
                         break;
                     }
                     case MENU_HELP_ABOUT:

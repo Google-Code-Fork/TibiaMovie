@@ -6,7 +6,7 @@
  *
  */
 
-#define TIBIAMOVIE_VERSION "0.2.4"
+#define TIBIAMOVIE_VERSION "0.2.5"
 #define MOVIEVERSION 2
 #define TIBIAPORT 7171
 
@@ -18,7 +18,8 @@
 
 #define MENU_FILE_EXIT           300
 #define MENU_OPTIONS_COMPAT_MODE 301
-#define MENU_HELP_ABOUT          302
+#define MENU_OPTIONS_OLD_CLIENT  302
+#define MENU_HELP_ABOUT          303
 
 extern HWND wMain;
 extern HWND btnRecord;
@@ -31,6 +32,7 @@ extern char saveFile[512];
 extern int memorySaveCnt;
 extern int debug;
 extern int compatmode;
+extern int oldtibia;
 
 extern unsigned long int lastDraw;
 

@@ -1,5 +1,5 @@
 .-----------------------------------------------------------------.
-| TibiaMovie 0.2.4 Revision 2 (http://tibiamovie.sourceforge.net) |
+| TibiaMovie 0.2.5 Revision 2 (http://tibiamovie.sourceforge.net) |
 '-----------------------------------------------------------------'
 
 1. Description
@@ -79,6 +79,13 @@ Options|Only Show Compatible Movies
 - In playback mode, will only show movies that were recorded in the current
   version of Tibia. So, if you have Tibia 7.3 open, it will only show a list
   of movies that were recorded in Tibia 7.3.
+
+Options|Old Tibia Client
+- The old version of Tibia let you put in your own custom login server
+  address. This makes the "Activate" button unnecessary, and you shouldn't
+  in fact use it with Tibia 7.1. Also, some protocol changes existed in
+  7.1 and using the Old Tibia Client option allows TibiaMovie to compensate
+  for these changes.
 
 Help|About
 - About the program/copyright notices.

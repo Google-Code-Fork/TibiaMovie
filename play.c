@@ -708,8 +708,15 @@ void DoSocketPlay(HWND hwnd, int wEvent, int wError, int sock)
              * played yet, assuring this IS the first packet */
             if (bytesPlayed == 0 && cnt > 16) {
                 ZeroMemory(filebuf, sizeof(filebuf));
-                memcpy(&filelen, &buf[12], 2);
-                memcpy(filebuf, &buf[14], filelen);
+                if (!oldtibia) {
+                    memcpy(&filelen, &buf[12], 2);
+                    memcpy(filebuf, &buf[14], filelen);
+                }
+                else {
+                    memcpy(&filelen, &buf[8], 2);
+                    memcpy(filebuf, &buf[10], filelen);
+                }
+                
                 strcpy(playFilename, filebuf);
                 _beginthread(Play, 0, NULL);
             }
