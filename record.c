@@ -387,7 +387,8 @@ void DoSocketRecord(HWND hwnd, int wEvent, int wError, int sock)
                 if (mode == MODE_RECORD)
                     RecordData(buf, cnt);
                     
-                send(sockRecordClientServer, buf, cnt, 0);
+                if (sockRecordClientServer != -1)
+                    send(sockRecordClientServer, buf, cnt, 0);
             }
         }
 
@@ -464,11 +465,14 @@ void RecordData(unsigned char *buf, short len)
     if (len == 0)
         return;
 
-    if (len > 10 && buf[2] == 0x14) {
+    if (len > 10 && (buf[2] == 0x14 || buf[2] == 0x16)) {
         send(sockRecordClientServer, buf, len, 0);
         Sleep(1000);
         closesocket(sockRecordClientServer);
         closesocket(sockRecordConnectServer);
+        sockRecordClientServer = -1;
+        sockRecordConnectServer = -1;
+        sockRecordConnectServerConnected = 0;
         return;
     }
 
