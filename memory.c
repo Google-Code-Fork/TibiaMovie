@@ -288,11 +288,10 @@ void MemoryInjection(int toggle)
 
     cnt = (LPVOID)0;
 
-    TibiaVersionFound = 0;
-    
     if (toggle == 1) {
         char buf[512];
-
+        TibiaVersionFound = 0;
+        
         for (i = 0; memoryVersion[i].version != 0; i++) {
             ReadProcessMemory(hProcess, memoryVersion[i].address, buf, memoryVersion[i].buflen, NULL);
 
