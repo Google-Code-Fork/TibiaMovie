@@ -1,5 +1,5 @@
 .--------------------------------------------------.
-| TibiaMovie 1 (http://www.erigol.com/tibiamovie/) |
+| TibiaMovie 1 (http://tibiamovie.sourceforge.net) |
 '--------------------------------------------------'
 
 1. Description

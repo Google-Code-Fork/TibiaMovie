@@ -414,7 +414,7 @@ void Play(void *nothing)
                 if (bytesPlayed == 0 && playRec == 0) {
                     char msgbuf[512];
                     sprintf(msgbuf, "Recorded in Tibia %.02f using TibiaMovie %d. "
-                                    "Get TibiaMovie at www.erigol.com/tibiamovie/",
+                                    "Get TibiaMovie at tibiamovie.sourceforge.net/",
                                     tibiaversion / 100.0, version);
                     SendStatusMessage(sockPlayClientServer, msgbuf);
                     bytesPlayed += 13;
