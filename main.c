@@ -261,6 +261,10 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             POINT pt;
             RECT rect;
             
+            /* only change speed when in play mode */
+            if (mode != MODE_PLAY)
+                break;
+                
             if (message == WM_LBUTTONDOWN || (message == WM_MOUSEMOVE && (fwKeys & MK_LBUTTON))) {
                SetRect(&rect, 60, 91, 225, 104);
                pt.x = xPos;
@@ -354,22 +358,24 @@ void OnPaint(HWND hwnd, int message, WPARAM wParam, LPARAM lParam)
     brushBlue   = CreateSolidBrush(RGB(0, 0, 128));
     brushLtBlue = CreateSolidBrush(RGB(150, 150, 255));
 
-    SetRect(&rectDraw, 60, 91, 225, 104);
-    FillRect(hdc, &rectDraw, brushBlack);
-    SetRect(&rectDraw, 61, 92, 224, 103);
-    FillRect(hdc, &rectDraw, brushBlue);
-    SetRect(&rectDraw, 60 + (playSpeed * 15), 91, 60 + ((playSpeed + 1) * 15), 104);
-    FillRect(hdc, &rectDraw, brushBlack);
-    SetRect(&rectDraw, 60 + (playSpeed * 15), 92, 60 + ((playSpeed + 1) * 15), 103);
-    FillRect(hdc, &rectDraw, brushLtBlue);
-
+    y = 60;
     sprintf(buf, "Memory Injection: %s", memoryActivated ? "Enabled" : "Disabled");
-    TextOut(hdc, 0, 60, buf, strlen(buf));
+    TextOut(hdc, 0, y, buf, strlen(buf)); y += 15;
     sprintf(buf, "Mode: %s", mode == MODE_NONE ? "None" : mode == MODE_PLAY ? "Play" : "Record");
-    TextOut(hdc, 0, 75, buf, strlen(buf));
-    TextOut(hdc, 0, 90, "Speed: ", 7);
+    TextOut(hdc, 0, y, buf, strlen(buf)); y += 15;
 
-    y = 105;
+    if (mode == MODE_PLAY) {
+        /* the speed bar */
+        SetRect(&rectDraw, 60, y + 1, 225, 104);
+        FillRect(hdc, &rectDraw, brushBlack);
+        SetRect(&rectDraw, 61, y + 2, 224, 103);
+        FillRect(hdc, &rectDraw, brushBlue);
+        SetRect(&rectDraw, 60 + (playSpeed * 15), y + 1, 60 + ((playSpeed + 1) * 15), 104);
+        FillRect(hdc, &rectDraw, brushBlack);
+        SetRect(&rectDraw, 60 + (playSpeed * 15), y + 2, 60 + ((playSpeed + 1) * 15), 103);
+        FillRect(hdc, &rectDraw, brushLtBlue);
+        TextOut(hdc, 0, y, "Speed: ", 7); y += 15;
+    }
 
     if (mode == MODE_RECORD) {
         if (bytesRecorded > 0) {

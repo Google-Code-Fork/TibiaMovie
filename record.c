@@ -128,21 +128,28 @@ void RecordEnd(void)
     serverQueuePos = serverQueueBuf;
 
     FindUnusedMovieName();
-    mode = MODE_RECORD_PAUSE;
-    SetWindowText(btnRecord, "Disconnect");
+    
+    if (sockRecordClientServer == -1) {
+        SetWindowText(btnRecord, "Record");
+        mode = MODE_NONE;
+    }
+    else {
+        SetWindowText(btnRecord, "Disconnect");
+        mode = MODE_RECORD_PAUSE;
+    }
     InvalidateRect(wMain, NULL, TRUE);
     return;
 }
 
 void RecordDisconnect(void)
 {
-    closesocket(sockRecordListenCharacter);
-    closesocket(sockRecordClientCharacter);
-    closesocket(sockRecordConnectCharacter);
+    closesocket(sockRecordListenCharacter); sockRecordListenCharacter = -1;
+    closesocket(sockRecordClientCharacter); sockRecordClientCharacter = -1;
+    closesocket(sockRecordConnectCharacter); sockRecordConnectCharacter = -1;
 
-    closesocket(sockRecordListenServer);
-    closesocket(sockRecordClientServer);
-    closesocket(sockRecordConnectServer);
+    closesocket(sockRecordListenServer); sockRecordListenServer = -1;
+    closesocket(sockRecordClientServer); sockRecordClientServer = -1;
+    closesocket(sockRecordConnectServer); sockRecordConnectServer = -1;
 
     return;
 }
@@ -204,8 +211,8 @@ void DoSocketRecord(HWND hwnd, int wEvent, int wError, int sock)
         closesocket(sockRecordClientServer);
         closesocket(sockRecordConnectServer);
         sockRecordConnectServerConnected = 0;
-        RecordEnd();
         RecordDisconnect();
+        RecordEnd();
         return;
     }
 
