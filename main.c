@@ -35,6 +35,7 @@ HBRUSH brushBlack, brushBlue, brushLtBlue, brushLtGrey, brushGrey, brushYellow, 
 int mode = 0;
 
 int debug = 0;
+int enableFrame = 0;
 
 /* filename saving stuff */
 OPENFILENAME ofn;
@@ -306,9 +307,30 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                    int newspeed = ((pt.x - 60) / 15);
                    if (newspeed != playSpeed) {
                        playSpeed = newspeed;
+                       SetRect(&rect, 0, 91, 300, 106);
                        InvalidateRect(hwnd, &rect, TRUE);
                    }
+                   else if (newspeed == 0 && playSpeed == 0) {
+                       enableFrame = 1;
+                   }
+                   else {
+                       enableFrame = 0;
+                   }
                }
+            }
+            break;
+        }
+        case WM_LBUTTONUP: {
+            POINT pt;
+            RECT rect;
+            
+            /* only change speed when in play mode */
+            if (mode != MODE_PLAY)
+                break;
+                
+            SetRect(&rect, 60, 91, 60 + 15, 91 + 15);
+            if (enableFrame && PtInRect(&rect, pt)) {
+                nextPacket = 1;
             }
             break;
         }
@@ -393,22 +415,22 @@ void OnPaint(HWND hwnd, int message, WPARAM wParam, LPARAM lParam)
 
     if (mode == MODE_PLAY) {
         int cnt;
+        COLORREF oldcol;
+        
         /* the speed bar */
-        SetRect(&rectDraw, 59, y + 1, 226, 104);
+        SetRect(&rectDraw, 59, y + 1, 226, y + 15);
         FillRect(hdc, &rectDraw, brushBlack);
-        SetRect(&rectDraw, 60, y + 2, 225, 103);
+        SetRect(&rectDraw, 60, y + 2, 225, y + 14);
         FillRect(hdc, &rectDraw, brushBlue);
-/*        SetRect(&rectDraw, 60, y + 1, 60 + 15, y + 13);
-        FillRect(hdc, &rectDraw, brushBlack);
-*/        
+
         for (cnt = 1; cnt <= 10; cnt++) {
-            SetRect(&rectDraw, 60 + (cnt * 15), y + 2, 61 + (cnt * 15), y + 13);
+            SetRect(&rectDraw, 60 + (cnt * 15), y + 2, 61 + (cnt * 15), y + 14);
             FillRect(hdc, &rectDraw, brushLtBlue);
         }
         
-        SetRect(&rectDraw, 60 + (playSpeed * 15), y + 1, 60 + ((playSpeed + 1) * 15), 104);
+        SetRect(&rectDraw, 60 + (playSpeed * 15), y + 1, 60 + ((playSpeed + 1) * 15), y + 15);
         FillRect(hdc, &rectDraw, brushBlack);
-        SetRect(&rectDraw, 60 + (playSpeed * 15), y + 2, 60 + ((playSpeed + 1) * 15), 103);
+        SetRect(&rectDraw, 60 + (playSpeed * 15), y + 2, 60 + ((playSpeed + 1) * 15), y + 14);
         if (playSpeed > 0 && playSpeed < 10)
             FillRect(hdc, &rectDraw, brushLtBlue);
         else if (playSpeed == 10)
@@ -416,6 +438,12 @@ void OnPaint(HWND hwnd, int message, WPARAM wParam, LPARAM lParam)
         else
             FillRect(hdc, &rectDraw, brushGrey);
             
+        if (playSpeed == 0) {
+            oldcol = SetTextColor(hdc, RGB(255, 255, 255));
+            TextOut(hdc, 63, y, ">", 1);
+            SetTextColor(hdc, oldcol);
+        }
+        
         TextOut(hdc, 0, y, "Speed: ", 7); y += 15;
     }
 

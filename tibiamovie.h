@@ -62,6 +62,7 @@ extern unsigned int msTotal;
 extern int fastForwarding;
 extern int *playMarkers;
 extern int playMarkersCnt;
+extern int nextPacket;
 
 void PlayListen(int port, int *sock);
 void PlayStart(void);

@@ -38,6 +38,7 @@ int playSpeed = 1;
 int abortPlayThread = 0;
 int fastForwarding = 0;
 int playRec = 0;
+int nextPacket = 0;
 
 void PlayListen(int port, int *sock)
 {
@@ -388,6 +389,7 @@ void Play(void *nothing)
                      
         while (abortPlayThread == 0) {
             int threadplaySpeed = playSpeed;
+            int threadnextPacket = 0;
             
             /* the word "CHUNK" is added to debug-style .tmv files, this ignores it */
             /* getc(fpPlay);getc(fpPlay);getc(fpPlay);getc(fpPlay);getc(fpPlay); */
@@ -483,24 +485,28 @@ void Play(void *nothing)
 
                 if (playSpeed == 0) {
                     /* simulate a "pause" effect */
-                    while (playSpeed == 0 && mode == MODE_PLAY) {
+                    while (playSpeed == 0 && mode == MODE_PLAY && nextPacket == 0) {
                         /* this is safe, we're in our own thread! */
                         Sleep(100);
                     }
                 }
 
                 threadplaySpeed = playSpeed;
-
-                if (threadplaySpeed == 0)
-                    break;
-                    
+                threadnextPacket = nextPacket;
                 
 #define DELAY_UPDATE 1000
 
-                /* delay for delay milliseconds, depending on speed */
-                if (delay / threadplaySpeed < DELAY_UPDATE) {
-                    Sleep(delay / UMAX(1, threadplaySpeed));
+                if (threadnextPacket) {
+                    nextPacket = 0;
+                    threadnextPacket = 0;
                     msPlayed += delay;
+                }
+                else if (threadplaySpeed == 0) {
+                    break;
+                }
+                else if (delay / threadplaySpeed < DELAY_UPDATE) {
+                        Sleep(delay / UMAX(1, threadplaySpeed));
+                        msPlayed += delay;
                 }
                 else {
                     int ndelay = delay;
@@ -509,21 +515,31 @@ void Play(void *nothing)
                         threadplaySpeed = playSpeed;
 
                         if (threadplaySpeed == 0)
-                            while (playSpeed == 0 && mode == MODE_PLAY) {
+                            while (playSpeed == 0 && nextPacket == 0 && mode == MODE_PLAY) {
                                 /* this is safe, we're in our own thread! */
                                 Sleep(100);
                             }
 
                         threadplaySpeed = playSpeed;
-                        ndelay -= DELAY_UPDATE;
-                        Sleep(DELAY_UPDATE / UMAX(1, threadplaySpeed));
-                        msPlayed += DELAY_UPDATE;
+                        threadnextPacket = nextPacket;
+                        
+                        if (threadnextPacket) {
+                            nextPacket = 0;
+                            break;
+                        }
+                        else {
+                            ndelay -= DELAY_UPDATE;
+                            Sleep(DELAY_UPDATE / UMAX(1, threadplaySpeed));
+                            msPlayed += DELAY_UPDATE;
+                        }
                         
                         InvalidateRect(wMain, NULL, TRUE);
                     }
                     
                     if (ndelay > 0) {
-                        Sleep(ndelay / UMAX(1, threadplaySpeed));
+                        if (threadnextPacket == 0)
+                            Sleep(ndelay / UMAX(1, threadplaySpeed));
+                            
                         msPlayed += ndelay;
                     }
                 }
