@@ -98,7 +98,6 @@ int AdjustPrivileges(void);
 /* main.c */
 extern int mode;
 void FindUnusedMovieName(void);
-void debugf(char *fmt, ...) __attribute__((format(printf, 1, 2)));
 extern HBRUSH brushBlack, brushBlue, brushLtBlue, brushGrey, brushYellow, brushWhite;
 /* end main.c */
 

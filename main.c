@@ -558,24 +558,3 @@ BOOL CALLBACK AboutDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam
      return 0;
 }
 
-void debugf(char *fmt, ...)
-{
-    char buf[8192];
-    va_list args;
-    FILE *fp;
-
-    va_start(args, fmt);
-    vsnprintf(buf, sizeof(buf) - 1, fmt, args);
-    va_end(buf);
-
-    fp = fopen("debug.txt", "a");
-
-    if (fp) {
-        fprintf(fp, "%s", buf);
-        fflush(fp);
-        fclose(fp);
-    }
-
-    return;
-}
-
