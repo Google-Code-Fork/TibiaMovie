@@ -16,7 +16,7 @@
 #include <dirent.h>
 #include <stdlib.h>
 #include <process.h>
-
+#include "zlib.h"
 #include "tibiamovie.h"
 
 /* these variable names are embarassing :P */
@@ -26,7 +26,7 @@ int sockPlayListenServer    = -1;
 int sockPlayClientServer    = -1;
 
 char playFilename[512];
-FILE *fpPlay = NULL;
+gzFile fpPlay = NULL;
 int bytesPlayed = 0;
 unsigned int msPlayed = 0;
 unsigned int msTotal = 0;
@@ -237,67 +237,67 @@ void Play(void *nothing)
     /* do we need this? */
     /* Sleep(1000); */
 
-    fpPlay = fopen(playFilename, "rb");
+    fpPlay = gzopen(playFilename, "rb");
 
     if (fpPlay) {
         if (!playRec) {
             /* set the TibiaMovie revision */
-            buf[0] = getc(fpPlay);
-            buf[1] = getc(fpPlay);
+            buf[0] = gzgetc(fpPlay);
+            buf[1] = gzgetc(fpPlay);
             memcpy(&version, &buf[0], 2);
 
             /* set the Tibia version */
-            buf[0] = getc(fpPlay);
-            buf[1] = getc(fpPlay);
+            buf[0] = gzgetc(fpPlay);
+            buf[1] = gzgetc(fpPlay);
             memcpy(&tibiaversion, &buf[0], 2);
 
             /* set the duration (in milliseconds) of the movie */
-            buf[0] = getc(fpPlay);
-            buf[1] = getc(fpPlay);
-            buf[2] = getc(fpPlay);
-            buf[3] = getc(fpPlay);
+            buf[0] = gzgetc(fpPlay);
+            buf[1] = gzgetc(fpPlay);
+            buf[2] = gzgetc(fpPlay);
+            buf[3] = gzgetc(fpPlay);
             memcpy(&msTotal, &buf[0], 4);
         }
         else {
             int seek = 0;
             /* don't really know what 0x03, 0x01 means? */
-            buf[0] = getc(fpPlay);
-            buf[1] = getc(fpPlay);
+            buf[0] = gzgetc(fpPlay);
+            buf[1] = gzgetc(fpPlay);
             memcpy(&version, &buf[0], 2);
 
             /* they store in seconds, so multiply by 1000 */
-            buf[0] = getc(fpPlay);
-            buf[1] = getc(fpPlay);
-            buf[2] = getc(fpPlay);
-            buf[3] = getc(fpPlay);
+            buf[0] = gzgetc(fpPlay);
+            buf[1] = gzgetc(fpPlay);
+            buf[2] = gzgetc(fpPlay);
+            buf[3] = gzgetc(fpPlay);
             memcpy(&numpacks, &buf[0], 4);
 
             seek = 6;
             
             for (c = 0; c < numpacks; c++) {
-                buf[0] = getc(fpPlay);
-                buf[1] = getc(fpPlay);
-                buf[2] = getc(fpPlay);
-                buf[3] = getc(fpPlay);
+                buf[0] = gzgetc(fpPlay);
+                buf[1] = gzgetc(fpPlay);
+                buf[2] = gzgetc(fpPlay);
+                buf[3] = gzgetc(fpPlay);
                 seek += 4;
                 memcpy(&llen, &buf[0], 4);
                 len = (short)llen;
                      
-                buf[0] = getc(fpPlay);
-                buf[1] = getc(fpPlay);
-                buf[2] = getc(fpPlay);
-                buf[3] = getc(fpPlay);
+                buf[0] = gzgetc(fpPlay);
+                buf[1] = gzgetc(fpPlay);
+                buf[2] = gzgetc(fpPlay);
+                buf[3] = gzgetc(fpPlay);
                 seek += 4;
                 memcpy(&delay, &buf[0], 4);
 
                 if (c == numpacks - 1) {
                     /* last pack */
                     msTotal = delay;
-                    fseek(fpPlay, 6, SEEK_SET);
+                    gzseek(fpPlay, 6, SEEK_SET);
                     break;
                 }                
                 seek += len;
-                fseek(fpPlay, seek, SEEK_SET);
+                gzseek(fpPlay, seek, SEEK_SET);
             }
         }
                      
@@ -307,7 +307,7 @@ void Play(void *nothing)
             /* the word "CHUNK" is added to debug-style .tmv files, this ignores it */
             /* getc(fpPlay);getc(fpPlay);getc(fpPlay);getc(fpPlay);getc(fpPlay); */
 
-            ch = getc(fpPlay);
+            ch = gzgetc(fpPlay);
 
             /* check for EOF right off */
             if (ch == EOF)
@@ -318,35 +318,35 @@ void Play(void *nothing)
             if (chunk == RECORD_CHUNK_DATA || playRec) { /* if this is a data chunk */
                 if (!playRec) {
                     /* get the delay to pause after the packet is sent (in milliseconds) */
-                    buf[0] = getc(fpPlay);
-                    buf[1] = getc(fpPlay);
-                    buf[2] = getc(fpPlay);
-                    buf[3] = getc(fpPlay);
+                    buf[0] = gzgetc(fpPlay);
+                    buf[1] = gzgetc(fpPlay);
+                    buf[2] = gzgetc(fpPlay);
+                    buf[3] = gzgetc(fpPlay);
                     memcpy(&delay, &buf[0], 4);
 
                     /* length of the packet */
-                    buf[0] = getc(fpPlay);
-                    buf[1] = getc(fpPlay);
+                    buf[0] = gzgetc(fpPlay);
+                    buf[1] = gzgetc(fpPlay);
                     memcpy(&len, &buf[0], 2);
                 }
                 else {
                     buf[0] = ch;
-                    buf[1] = getc(fpPlay);
-                    buf[2] = getc(fpPlay);
-                    buf[3] = getc(fpPlay);
+                    buf[1] = gzgetc(fpPlay);
+                    buf[2] = gzgetc(fpPlay);
+                    buf[3] = gzgetc(fpPlay);
                     memcpy(&llen, &buf[0], 4);
                     len = (short)llen;
                      
-                    buf[0] = getc(fpPlay);
-                    buf[1] = getc(fpPlay);
-                    buf[2] = getc(fpPlay);
-                    buf[3] = getc(fpPlay);
+                    buf[0] = gzgetc(fpPlay);
+                    buf[1] = gzgetc(fpPlay);
+                    buf[2] = gzgetc(fpPlay);
+                    buf[3] = gzgetc(fpPlay);
                     memcpy(&delay, &buf[0], 4);
                     delay = delay - msPlayed;
                 }
 
                 for (c = 0; c < len && c < 30000; c++) {
-                    ch = getc(fpPlay);
+                    ch = gzgetc(fpPlay);
                     
                     if (ch == EOF) {
                         quit = 1;
@@ -354,36 +354,36 @@ void Play(void *nothing)
                     }
                     /* don't know what i was smoking when i did this, but it sure is ugly! */
                     else if (ch == '&') {
-                        ch = getc(fpPlay);
+                        ch = gzgetc(fpPlay);
                         if (ch == 'm') {
-                            ch = getc(fpPlay);
+                            ch = gzgetc(fpPlay);
                             if (ch == 'i') {
-                                ch = getc(fpPlay);
+                                ch = gzgetc(fpPlay);
                                 if (ch == 'd') {
-                                    ch = getc(fpPlay);
+                                    ch = gzgetc(fpPlay);
                                     if (ch == 'd') {
-                                        ch = getc(fpPlay);
+                                        ch = gzgetc(fpPlay);
                                         if (ch == 'o') {
-                                            ch = getc(fpPlay);
+                                            ch = gzgetc(fpPlay);
                                             if (ch == 't') {
-                                                ch = getc(fpPlay);
+                                                ch = gzgetc(fpPlay);
                                                 if (ch == ';') {
                                                     ch = 0xb7;
                                                 }
-                                                else { ungetc(ch, fpPlay);ungetc('t', fpPlay);ungetc('o', fpPlay);ungetc('d', fpPlay);ungetc('d', fpPlay);ungetc('i', fpPlay);ungetc('m', fpPlay);ch = '&'; }
+                                                else { gzseek(fpPlay, gztell(fpPlay) - 7, SEEK_SET); ch = '&'; }
                                             }
-                                            else { ungetc(ch, fpPlay);ungetc('o', fpPlay);ungetc('d', fpPlay);ungetc('d', fpPlay);ungetc('i', fpPlay);ungetc('m', fpPlay);ch = '&'; }
+                                            else { gzseek(fpPlay, gztell(fpPlay) - 6, SEEK_SET); ch = '&'; }
                                         }
-                                        else { ungetc(ch, fpPlay);ungetc('d', fpPlay);ungetc('d', fpPlay);ungetc('i', fpPlay);ungetc('m', fpPlay);ch = '&'; }
+                                        else { gzseek(fpPlay, gztell(fpPlay) - 5, SEEK_SET); ch = '&'; }
                                     }
-                                    else { ungetc(ch, fpPlay);ungetc('d', fpPlay);ungetc('i', fpPlay);ungetc('m', fpPlay);ch = '&'; }
+                                    else { gzseek(fpPlay, gztell(fpPlay) - 4, SEEK_SET); ch = '&'; }
                                 }
-                                else { ungetc(ch, fpPlay);ungetc('i', fpPlay);ungetc('m', fpPlay);ch = '&'; }
+                                else { gzseek(fpPlay, gztell(fpPlay) - 3, SEEK_SET); ch = '&'; }
                             }
-                            else { ungetc(ch, fpPlay);ungetc('m', fpPlay);ch = '&'; }
+                            else { gzseek(fpPlay, gztell(fpPlay) - 2, SEEK_SET); ch = '&'; }
                         }
                         else {
-                            ungetc(ch, fpPlay);
+                            gzseek(fpPlay, gztell(fpPlay) - 1, SEEK_SET);
                             ch = '&';
                         }
                     }
@@ -480,7 +480,7 @@ void Play(void *nothing)
             }
         }
 
-        fclose(fpPlay);
+        gzclose(fpPlay);
     }
 
     msPlayed = msTotal;

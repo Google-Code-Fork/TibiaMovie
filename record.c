@@ -12,7 +12,7 @@
 #include <winsock2.h>
 #include <stdio.h>
 #include <process.h>
-
+#include "zlib.h"
 #include "tibiamovie.h"
 
 struct serverData servers[1000];
@@ -34,7 +34,7 @@ int sockRecordConnectServerConnected = 0;
 char serverQueueBuf[1024];
 char *serverQueuePos = NULL;
 
-FILE *fpRecord = NULL;
+gzFile fpRecord = NULL;
 unsigned int recordStart = 0;
 int recordTotal = 0;
 int bytesRecorded = 0;
@@ -116,14 +116,14 @@ void RecordEnd(void)
         short len = 0;
         delay = timeGetTime() - recordStart;
         recordTotal += delay;
-        fputc(RECORD_CHUNK_DATA, fpRecord);
-        fwrite(&delay, 4, 1, fpRecord);
-        fwrite(&len, 2, 1, fpRecord);
-        fwrite(nullbuf, len, 1, fpRecord);
+        gzputc(fpRecord, RECORD_CHUNK_DATA);
+        gzwrite(fpRecord, &delay, 4);
+        gzwrite(fpRecord, &len, 2);
+        gzwrite(fpRecord, nullbuf, len);
 
-        fseek(fpRecord, 4, SEEK_SET);
-        fwrite(&recordTotal, 4, 1, fpRecord);
-        fclose(fpRecord);
+        gzseek(fpRecord, 4, SEEK_SET);
+        gzwrite(fpRecord, &recordTotal, 4);
+        gzclose(fpRecord);
         fpRecord = NULL;
     }
 
@@ -438,21 +438,21 @@ void RecordData(unsigned char *buf, short len)
 
         recordTotal = 0;
         FindUnusedMovieName();
-        fpRecord = fopen(saveFile, "wb");
+        fpRecord = gzopen(saveFile, "wb");
         recordStart = timeGetTime();
-        fwrite(&version, 2, 1, fpRecord);
-        fwrite(&tibiaversion, 2, 1, fpRecord);
-        fwrite(&secondsElapsed, 4, 1, fpRecord);
+        gzwrite(fpRecord, &version, 2);
+        gzwrite(fpRecord, &tibiaversion, 2);
+        gzwrite(fpRecord, &secondsElapsed, 4);
     }
 
     delay = timeGetTime() - recordStart;
     recordStart = timeGetTime();
     recordTotal += delay;
 
-    fputc(RECORD_CHUNK_DATA, fpRecord);
-    fwrite(&delay, 4, 1, fpRecord);
-    fwrite(&len, 2, 1, fpRecord);
-    fwrite(buf, len, 1, fpRecord);
+    gzputc(fpRecord, RECORD_CHUNK_DATA);
+    gzwrite(fpRecord, &delay, 4);
+    gzwrite(fpRecord, &len, 2);
+    gzwrite(fpRecord, buf, len);
 
     bytesRecorded += len + 5 + 6;
 
@@ -465,7 +465,7 @@ void RecordAddMarker(void)
     if (!fpRecord)
         return;
 
-    fputc(RECORD_CHUNK_MARKER, fpRecord);
+    gzputc(fpRecord, RECORD_CHUNK_MARKER);
     bytesRecorded += 1;
     numMarkers++;
     return;

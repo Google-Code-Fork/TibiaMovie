@@ -12,7 +12,7 @@ ResourceIncludes=
 MakeIncludes=
 Compiler=-Wall_@@_
 CppCompiler=
-Linker=C:/Dev-Cpp/lib/libwsock32.a_@@_C:/Dev-Cpp/lib/libwinmm.a_@@_
+Linker=C:/Dev-Cpp/lib/libwsock32.a_@@_C:/Dev-Cpp/lib/libwinmm.a_@@_zdll.lib_@@_
 IsCpp=0
 Icon=
 ExeOutput=
@@ -40,7 +40,7 @@ BuildCmd=
 [VersionInfo]
 Major=0
 Minor=1
-Release=7
+Release=8
 Build=0
 LanguageID=1033
 CharsetID=1252

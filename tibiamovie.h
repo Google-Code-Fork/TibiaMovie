@@ -6,7 +6,7 @@
  *
  */
 
-#define MOVIEVERSION 1
+#define MOVIEVERSION 2
 #define TIBIAPORT 7171
 
 #define WM_SOCKET_RECORD (WM_USER + 1)
@@ -31,7 +31,7 @@ void ProxyHandleServer(HWND hwnd, char *buf);
 extern int TibiaVersionFound;
 
 //extern FILE *fp;
-extern FILE *fpRecord;
+extern gzFile fpRecord;
 
 #define MODE_NONE         0
 #define MODE_PLAY         1
@@ -52,7 +52,7 @@ extern int sockPlayListenServer;
 extern int sockPlayClientServer;
 
 extern char playFilename[512];
-extern FILE *fpPlay;
+extern gzFile fpPlay;
 extern int bytesPlayed;
 extern int playSpeed;
 extern int abortPlayThread;

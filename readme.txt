@@ -1,5 +1,5 @@
 .-----------------------------------------------------------------.
-| TibiaMovie 0.1.7 Revision 1 (http://tibiamovie.sourceforge.net) |
+| TibiaMovie 0.1.8 Revision 2 (http://tibiamovie.sourceforge.net) |
 '-----------------------------------------------------------------'
 
 1. Description
@@ -132,6 +132,15 @@ line:
 Linker=C:/Dev-Cpp/lib/libwsock32.a_@@_C:/Dev-Cpp/lib/libwinmm.a_@@_
 
 is specific to my system. Make sure these paths are valid for your system.
+
+I've provided a statically compiled zlib library, but it is possible to build
+this yourself from the sources. I downloaded
+
+http://www.zlib.net/zlib121-dll.zip (precompiled)
+
+and used: libtool -D zlib1.dll -d zlib.def -l libzdll.a
+
+Your mileage may vary!
 
 If you have any patches you'd like me to add to TibiaMovie, please send them
 to tibiamovie@erigol.com and I will consider them.

@@ -12,6 +12,7 @@
 #include <winsock2.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include "zlib.h"
 #include "tibiamovie.h"
 
 LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);

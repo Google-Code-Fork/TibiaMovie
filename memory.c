@@ -17,6 +17,7 @@
 
 #include <windows.h>
 #include <stdio.h>
+#include "zlib.h"
 #include "tibiamovie.h"
 
 int memoryActivated = 0;
