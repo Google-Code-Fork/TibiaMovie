@@ -35,14 +35,26 @@ struct memoryVersionStruct {
 };
 
 struct memoryVersionStruct memoryVersion[] = {
-   { 726, (LPVOID)0x0048da18, "tibia2.cipsoft.com", 18 },
-   { 726, (LPVOID)0x0048da2c, "tibia1.cipsoft.com", 18 },
-   { 726, (LPVOID)0x0048da40, "server2.tibia.com",  17 },
-   { 726, (LPVOID)0x0048da54, "server.tibia.com",   16 },
-   { 726, (LPVOID)0x0051de08, "server.tibia.com",   16 },
-   { 726, (LPVOID)0x0051de78, "server2.tibia.com",  17 },
-   { 726, (LPVOID)0x0051dee8, "tibia1.cipsoft.com", 18 },
-   { 726, (LPVOID)0x0051df58, "tibia2.cipsoft.com", 18 },
+    /* 7.26 */
+    { 726, (LPVOID)0x0048da18, "tibia2.cipsoft.com", 18 },
+    { 726, (LPVOID)0x0048da2c, "tibia1.cipsoft.com", 18 },
+    { 726, (LPVOID)0x0048da40, "server2.tibia.com",  17 },
+    { 726, (LPVOID)0x0048da54, "server.tibia.com",   16 },
+    { 726, (LPVOID)0x0051de08, "server.tibia.com",   16 },
+    { 726, (LPVOID)0x0051de78, "server2.tibia.com",  17 },
+    { 726, (LPVOID)0x0051dee8, "tibia1.cipsoft.com", 18 },
+    { 726, (LPVOID)0x0051df58, "tibia2.cipsoft.com", 18 },
+    
+    /* 7.27 */
+    { 727, (LPVOID)0x0048db30, "tibia2.cipsoft.com", 18 },
+    { 727, (LPVOID)0x0048db44, "tibia1.cipsoft.com", 18 },
+    { 727, (LPVOID)0x0048db58, "server2.tibia.com",  17 },
+    { 727, (LPVOID)0x0048db6c, "server.tibia.com",   16 },
+    { 727, (LPVOID)0x0051f9c8, "server.tibia.com",   16 },
+    { 727, (LPVOID)0x0051fa38, "server2.tibia.com",  17 },
+    { 727, (LPVOID)0x0051faa8, "tibia1.cipsoft.com", 18 },
+    { 727, (LPVOID)0x0051fb18, "tibia2.cipsoft.com", 18 },
+
 /* add new (or old?) versions here :) */
    {   0, (LPVOID)0x00000000, "",                    0 }
 };
@@ -176,13 +188,13 @@ void SearchPage(HANDLE hProcess, LPVOID start, int length)
             memorySave[memorySaveCnt].buflen = locationlen;
             memorySaveCnt++;
             
-/* used when tibia releases new versions, easy copy/paste :P
+//* used when tibia releases new versions, easy copy/paste :P
             {
                 FILE *fp = fopen("c:/memory.txt", "a");
-                fprintf(fp, "{ 726, 0x%08x, %s, %d },\n", location, buf, locationlen);
+                fprintf(fp, "{ 727, 0x%08x, %s, %d },\n", (int)location, buf, locationlen);
                 fclose(fp);
             }
-*/            
+//*/            
             ZeroMemory(buf, 512);
             strcpy(buf, "127.0.0.1");
             WriteProcessMemory(hProcess, location, buf, locationlen, &writelen);
