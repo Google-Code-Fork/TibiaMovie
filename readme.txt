@@ -1,5 +1,5 @@
 .-----------------------------------------------------------------.
-| TibiaMovie 0.2.2 Revision 2 (http://tibiamovie.sourceforge.net) |
+| TibiaMovie 0.2.3 Revision 2 (http://tibiamovie.sourceforge.net) |
 '-----------------------------------------------------------------'
 
 1. Description
@@ -70,7 +70,20 @@ would Add a marker. So people that already knew the way wouldn't have to wait
 impatiently for you to get there, or if they sped the movie up themselves,
 they wouldn't have to guess where to slow it back down.
 
-5. Compatibility/Quirks
+5. Menus
+--------
+File|Exit
+- Exits the program
+
+Options|Only Show Compatible Movies
+- In playback mode, will only show movies that were recorded in the current
+  version of Tibia. So, if you have Tibia 7.3 open, it will only show a list
+  of movies that were recorded in Tibia 7.3.
+
+Help|About
+- About the program/copyright notices.
+
+6. Compatibility/Quirks
 ----------------
 
 Since TibiaMovie was created for Tibia 7.26, it will not be compatible with
@@ -84,7 +97,7 @@ TibiaMovie has very limited support for TibiCam .rec movies and will play
 old TibiCam .rec movies, but no guarantee or support is provided for TibiCam
 movie playback in TibiaMovie.
 
-5. Contact
+7. Contact
 ----------
 
 If you encounter a bug in TibiaMovie, please contact tibiamovie@erigol.com
@@ -103,7 +116,7 @@ and bugs at:
 
     http://sourceforge.net/tracker/?group_id=114671&atid=669130
 
-6. TODO
+8. TODO
 -------
 
 Some things I may or may not do:
@@ -112,7 +125,7 @@ Some things I may or may not do:
 - Ability to scramble peoples' names
 - Allow markers to be named, and the name shows up when playing back
 
-7. History of TibiaMovie
+9. History of TibiaMovie
 ------------------------
 
 TibiaMovie was created after much frustration from TibiCam. Whilst TibiCam is
@@ -128,7 +141,7 @@ TibiaMovie was also designed for speed, and therefore was written in C using
 the Windows API. There shouldn't be ANY noticable lag between playing in Tibia
 and recording a movie through TibiaMovie. If there is, this is a bug!
 
-8. Compiling the Source
+10. Compiling the Source
 -----------------------
 
 I won't be providing much support for the compilation of TibiaMovie. If you
@@ -158,7 +171,7 @@ Your mileage may vary!
 If you have any patches you'd like me to add to TibiaMovie, please send them
 to tibiamovie@erigol.com and I will consider them.
 
-9. Legal Stuff
+11. Legal Stuff
 --------------
 
 This program is not made, distributed, or supported by CipSoft GmbH.
