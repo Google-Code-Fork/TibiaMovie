@@ -302,6 +302,8 @@ void Play(void *nothing)
         }
                      
         while (abortPlayThread == 0) {
+            int threadplaySpeed = playSpeed;
+            
             /* the word "CHUNK" is added to debug-style .tmv files, this ignores it */
             /* getc(fpPlay);getc(fpPlay);getc(fpPlay);getc(fpPlay);getc(fpPlay); */
 
@@ -402,25 +404,41 @@ void Play(void *nothing)
                     }
                 }
 
+                threadplaySpeed = playSpeed;
+
+                if (threadplaySpeed == 0)
+                    break;
+                    
+                
 #define DELAY_UPDATE 1000
 
                 /* delay for delay milliseconds, depending on speed */
-                if (delay / playSpeed < DELAY_UPDATE) {
-                    Sleep(delay / playSpeed);
+                if (delay / threadplaySpeed < DELAY_UPDATE) {
+                    Sleep(delay / UMAX(1, threadplaySpeed));
                     msPlayed += delay;
                 }
                 else {
                     int ndelay = delay;
                     
                     while (ndelay >= DELAY_UPDATE) {
+                        threadplaySpeed = playSpeed;
+
+                        if (threadplaySpeed == 0)
+                            while (playSpeed == 0 && mode == MODE_PLAY) {
+                                /* this is safe, we're in our own thread! */
+                                Sleep(100);
+                            }
+
+                        threadplaySpeed = playSpeed;
                         ndelay -= DELAY_UPDATE;
-                        Sleep(DELAY_UPDATE / playSpeed);
+                        Sleep(DELAY_UPDATE / UMAX(1, threadplaySpeed));
                         msPlayed += DELAY_UPDATE;
+                        
                         InvalidateRect(wMain, NULL, TRUE);
                     }
                     
                     if (ndelay > 0) {
-                        Sleep(ndelay / playSpeed);
+                        Sleep(ndelay / UMAX(1, threadplaySpeed));
                         msPlayed += ndelay;
                     }
                 }
@@ -432,12 +450,18 @@ void Play(void *nothing)
                     
                 /* first packet, insert our own status message */
                 if (bytesPlayed == 0 && playRec == 0) {
+                    short mylen;
                     char msgbuf[512];
-                    sprintf(msgbuf, "Recorded in Tibia %.02f using TibiaMovie %d. "
-                                    "Get TibiaMovie at tibiamovie.sourceforge.net/",
-                                    tibiaversion / 100.0, version);
-                    SendStatusMessage(sockPlayClientServer, msgbuf);
-                    bytesPlayed += 13;
+                    
+                    memcpy(&mylen, &buf[0], 2);
+                    
+                    if (mylen < len - 2) {
+                        sprintf(msgbuf, "Recorded in Tibia %.02f using TibiaMovie %d. "
+                                        "Get TibiaMovie at tibiamovie.sourceforge.net/",
+                                        tibiaversion / 100.0, version);
+                        SendStatusMessage(sockPlayClientServer, msgbuf);
+                        bytesPlayed += 13;
+                    }
                 }
 
                 bytesPlayed += len + 7;
