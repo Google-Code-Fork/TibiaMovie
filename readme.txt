@@ -1,6 +1,6 @@
-.--------------------------------------------------.
-| TibiaMovie 1 (http://tibiamovie.sourceforge.net) |
-'--------------------------------------------------'
+.-----------------------------------------------------------------.
+| TibiaMovie 0.1.5 Revision 1 (http://tibiamovie.sourceforge.net) |
+'-----------------------------------------------------------------'
 
 1. Description
 --------------
@@ -100,11 +100,6 @@ Some things I may or may not do:
 - Ability to scramble peoples' names
 - Allow markers to be named, and the name shows up when playing back
 
-One thing I WILL promise to do:
-
-If I ever quit Tibia or get tired of authoring TibiaMovie, I will release the
-full source code to the public, so that someone else may maintain it!
-
 7. History of TibiaMovie
 ------------------------
 
@@ -134,7 +129,7 @@ TibiaMovie is compiled with BloodShed's Dev-C++ 4.9.8.0. You will probably
 have to change a couple of pathnames in the TibiaMovie.dev file, namely the
 line:
 
-Linker=../../Dev-Cpp/lib/libwsock32.a_@@_../../Dev-Cpp/lib/libwinmm.a_@@_
+Linker=C:/Dev-Cpp/lib/libwsock32.a_@@_C:/Dev-Cpp/lib/libwinmm.a_@@_
 
 is specific to my system. Make sure these paths are valid for your system.
 
