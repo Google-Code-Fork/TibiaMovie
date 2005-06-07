@@ -155,7 +155,7 @@ void PlaySendMotd(void)
             
             if (compatmode && tibiaversion != TibiaVersionFound)
                 continue;
-                
+
             filecount++;
         }
     }

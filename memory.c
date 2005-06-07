@@ -186,6 +186,8 @@ char *MemoryProtectionType(int val)
  * automatically search the memory as a last case effort, the reason it's not default
  * is searching all the memory takes a long time on older systems.
  */
+int searchfound = 0;
+
 void SearchPage(HANDLE hProcess, LPVOID start, int length)
 {
     char buf[512];
@@ -228,14 +230,15 @@ void SearchPage(HANDLE hProcess, LPVOID start, int length)
             memcpy(memorySave[memorySaveCnt].buf, buf, locationlen);
             memorySave[memorySaveCnt].buflen = locationlen;
             memorySaveCnt++;
+/*            searchfound = 1;*/
             
-//* used when tibia releases new versions, easy copy/paste :P
+/* used when tibia releases new versions, easy copy/paste :P
             {
                 FILE *fp = fopen("c:/memory.txt", "a");
                 fprintf(fp, "{ (LPVOID)732, 0x%08x, \"%s\", %d },\n", (int)location, buf, locationlen);
                 fclose(fp);
             }
-//*/            
+*/            
             ZeroMemory(buf, 512);
             strcpy(buf, "127.0.0.1");
             WriteProcessMemory(hProcess, location, buf, locationlen, &writelen);
@@ -252,10 +255,14 @@ void MemoryInjectionSearch(int toggle)
     MEMORY_BASIC_INFORMATION meminfo;
     LPVOID cnt;
     int i;
+    HWND wOldTibia = NULL;
+
+    if (wTibia)
+        wOldTibia = wTibia;
 
     EnumWindows(FindTibiaProc, 0);
 
-    if (!wTibia) {
+    if (!wTibia || (wOldTibia && wOldTibia != wTibia)) {
         memoryActivated = 0;
         return;
     }
@@ -266,23 +273,41 @@ void MemoryInjectionSearch(int toggle)
     cnt = (LPVOID)0;
 
     if (toggle == 1) {
+/*        FILE *fp=fopen("memorystruct.txt", "w");*/
         ZeroMemory(memorySave, sizeof(memorySave));
         memorySaveCnt = 0;
-
+        
         while (VirtualQueryEx(hProcess, cnt, &meminfo, sizeof(meminfo)) > 0) {
             /* this seems to work, only check pages that are lower than 10mb, saves time */
-            if (meminfo.State == MEM_COMMIT && (int)meminfo.RegionSize < 10000000) {
+            if (meminfo.State == MEM_COMMIT && (int)meminfo.RegionSize < 10000000 && (int)meminfo.AllocationBase == 0x00400000) {
+/*                fprintf(fp, "baseaddress[%08x] allocationbase[%08x] allocationprotect[%d] regionsize[%d] state[%d] protect[%d] type[%d]\n",
+                     meminfo.BaseAddress, meminfo.AllocationBase, meminfo.AllocationProtect, meminfo.RegionSize, meminfo.State, meminfo.Protect, meminfo.Type);
+*/                
                 SearchPage(hProcess, meminfo.BaseAddress, (int)meminfo.RegionSize);
+                
+/*                if (searchfound) {
+                    fprintf(fp, "found\n");
+                    searchfound = 0;
+                }
+*/
             }
 
             cnt = (LPVOID)((DWORD)meminfo.BaseAddress + (DWORD)meminfo.RegionSize);
         }
-
+        
         memoryActivated = 1;
     }
     else if (memorySave[0].address != 0) {
+        char buf[512];
+        
         for (i = 0; memorySave[i].address != 0; i++) {
-            WriteProcessMemory(hProcess, memorySave[i].address, memorySave[i].buf, memorySave[i].buflen, NULL);
+            ZeroMemory(buf, sizeof(buf));
+            ReadProcessMemory(hProcess, memorySave[i].address, buf, memorySave[i].buflen, NULL);
+            
+            if (memcmp(buf, memorySave[i].buf, memorySave[i].buflen) == 0
+                    || memcmp(buf, "127.0.0.1", 9) == 0) {
+                WriteProcessMemory(hProcess, memorySave[i].address, memorySave[i].buf, memorySave[i].buflen, NULL);
+            }
         }
 
         memoryActivated = 0;
@@ -345,9 +370,14 @@ void MemoryInjection(int toggle)
 
             memoryActivated = 1;
         }
+        else {
+            MemoryInjectionSearch(toggle);
+        }
     }
-    else {
-        if (TibiaVersionFound != 0) {
+    else if (memorySave[0].address != 0) {
+            MemoryInjectionSearch(toggle);
+    }
+    else if (TibiaVersionFound != 0) {
             char buf[512];
 
             for (i = 0; memoryVersion[i].version != 0; i++) {
@@ -363,7 +393,6 @@ void MemoryInjection(int toggle)
                 }
             }
             memoryActivated = 0;
-        }
     }
 
     CloseHandle(hProcess);
