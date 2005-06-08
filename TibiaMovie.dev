@@ -12,7 +12,7 @@ ResourceIncludes=
 MakeIncludes=
 Compiler=-Wall_@@_
 CppCompiler=
-Linker=C:/Dev-Cpp/lib/libwsock32.a_@@_C:/Dev-Cpp/lib/libwinmm.a_@@_zdll.lib_@@_
+Linker=C:/Dev-Cpp/lib/libwsock32.a_@@_C:/Dev-Cpp/lib/libwinmm.a_@@_zdll.lib_@@_C:/Dev-Cpp/lib/libversion.a_@@_C:/Dev-Cpp/lib/libpsapi.a_@@_
 IsCpp=0
 Icon=
 ExeOutput=
@@ -42,7 +42,7 @@ BuildCmd=
 [VersionInfo]
 Major=0
 Minor=3
-Release=1
+Release=2
 Build=0
 LanguageID=1033
 CharsetID=1252

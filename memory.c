@@ -17,6 +17,7 @@
 
 #include <windows.h>
 #include <stdio.h>
+#include <psapi.h>
 #include "zlib.h"
 #include "tibiamovie.h"
 
@@ -107,6 +108,49 @@ int memorySaveCnt = 0;
 HWND wTibia = NULL;
 HINSTANCE hInstanceTibia = NULL;
 int TibiaVersionFound = 0;
+
+/* Get the Tibia Version from a specified Tibia.exe file */
+int GetTibiaFileVersion(char *filename)
+{
+    DWORD size;
+    LPVOID buf;
+    LPTSTR block = "\\";
+    VS_FIXEDFILEINFO *lpFFI;
+    DWORD dwBufSize;
+    char ver[64];
+    
+    size = GetFileVersionInfoSize(filename, NULL);
+    
+    if (!size) return 0;
+    
+    buf = (LPVOID)malloc(size);
+    
+    if (!buf) return 0;
+    
+    if (GetFileVersionInfo(filename, 0, size, buf)) {
+        if (VerQueryValue(buf, block, (LPVOID *)&lpFFI, (UINT *)&dwBufSize)) {
+            sprintf(ver, "%d%d%d", HIWORD(lpFFI->dwFileVersionMS),
+                                   LOWORD(lpFFI->dwFileVersionMS),
+                                   HIWORD(lpFFI->dwFileVersionLS)
+            );
+            
+            free(buf);
+            return atoi(ver);
+        }
+    }
+    
+    free(buf);
+    return 0;
+}
+
+BOOL GetProcessFilenameFromProcess(HANDLE proc, char *out)
+{
+    if (GetModuleFileNameEx(proc, NULL, (LPTSTR)out, 1023)) {
+        return 1;
+    }
+    
+    return 0;
+}
 
 BOOL CALLBACK FindTibiaProc(HWND hwnd, LPARAM lparam)
 {
@@ -371,11 +415,20 @@ void MemoryInjection(int toggle)
             memoryActivated = 1;
         }
         else {
+            char buf[1024];
+            
             MemoryInjectionSearch(toggle);
+            
+            if (GetProcessFilenameFromProcess(hProcess, buf)) {
+                TibiaVersionFound = GetTibiaFileVersion(buf);
+            }
+            else {
+                TibiaVersionFound = 0;
+            }
         }
     }
     else if (memorySave[0].address != 0) {
-            MemoryInjectionSearch(toggle);
+        MemoryInjectionSearch(toggle);
     }
     else if (TibiaVersionFound != 0) {
             char buf[512];
