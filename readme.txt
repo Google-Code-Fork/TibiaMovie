@@ -1,5 +1,5 @@
 .-----------------------------------------------------------------.
-| TibiaMovie 0.3.2 Revision 2 (http://tibiamovie.sourceforge.net) |
+| TibiaMovie 0.3.3 Revision 2 (http://tibiamovie.sourceforge.net) |
 '-----------------------------------------------------------------'
 
 1. Description
@@ -199,7 +199,7 @@ is specific to my system. Make sure these paths are valid for your system.
 I've provided a statically compiled zlib library, but it is possible to build
 this yourself from the sources. I downloaded:
 
-http://www.zlib.net/zlib121-dll.zip (precompiled, you can get the source from
+http://www.zlib.net/zlib123-dll.zip (precompiled, you can get the source from
 zlib.net yourself if you don't trust zlib.net either!)
 
 and used: libtool -D zlib1.dll -d zlib.def -l libzdll.a

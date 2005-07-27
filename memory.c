@@ -274,7 +274,7 @@ void SearchPage(HANDLE hProcess, LPVOID start, int length)
             memcpy(memorySave[memorySaveCnt].buf, buf, locationlen);
             memorySave[memorySaveCnt].buflen = locationlen;
             memorySaveCnt++;
-/*            searchfound = 1;*/
+            searchfound = 1;
             
 /* used when tibia releases new versions, easy copy/paste :P
             {
@@ -325,11 +325,11 @@ void MemoryInjectionSearch(int toggle)
             /* this seems to work, only check pages that are lower than 10mb, saves time */
             if (meminfo.State == MEM_COMMIT && (int)meminfo.RegionSize < 10000000 && (int)meminfo.AllocationBase == 0x00400000) {
 /*                fprintf(fp, "baseaddress[%08x] allocationbase[%08x] allocationprotect[%d] regionsize[%d] state[%d] protect[%d] type[%d]\n",
-                     meminfo.BaseAddress, meminfo.AllocationBase, meminfo.AllocationProtect, meminfo.RegionSize, meminfo.State, meminfo.Protect, meminfo.Type);
-*/                
+                     meminfo.BaseAddress, meminfo.AllocationBase, meminfo.AllocationProtect, meminfo.RegionSize, meminfo.State, meminfo.Protect, meminfo.Type);*/
                 SearchPage(hProcess, meminfo.BaseAddress, (int)meminfo.RegionSize);
                 
-/*                if (searchfound) {
+/*
+                if (searchfound) {
                     fprintf(fp, "found\n");
                     searchfound = 0;
                 }

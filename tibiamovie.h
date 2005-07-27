@@ -6,7 +6,7 @@
  *
  */
 
-#define TIBIAMOVIE_VERSION "0.3.2"
+#define TIBIAMOVIE_VERSION "0.3.3"
 #define MOVIEVERSION 2
 #define TIBIAPORT 7171
 
